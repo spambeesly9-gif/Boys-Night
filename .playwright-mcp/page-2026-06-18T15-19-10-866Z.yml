@@ -1,0 +1,14 @@
+- generic [ref=e21]:
+  - generic [ref=e22]:
+    - paragraph [ref=e23]: Room Code
+    - generic [ref=e24]: WXRC
+    - paragraph [ref=e25]: Share this code with your friends
+  - generic [ref=e26]:
+    - generic [ref=e27]:
+      - paragraph [ref=e28]: Players (1/8)
+      - generic [ref=e29]: Need 2 more
+    - generic [ref=e31]:
+      - generic [ref=e32]: 👑
+      - generic [ref=e33]: Kurt
+      - generic [ref=e34]: you
+  - button "Waiting for players… (1/3)" [disabled] [ref=e35]

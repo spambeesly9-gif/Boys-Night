@@ -1,0 +1,10 @@
+{
+  "name": "boys-night",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "server": "cd server && node index.js",
+    "client": "cd client && npm run dev",
+    "dev:server": "cd server && node --watch index.js"
+  }
+}
