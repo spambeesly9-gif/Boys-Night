@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import CountdownTimer from './CountdownTimer';
+import { playTap } from '../../utils/sounds';
 
 const PLAYER_COLORS = [
   'bg-red-100 text-brand-red border-red-200',
@@ -86,7 +87,7 @@ export default function AnswerPhase({ round, duration, myPrompts, answerStatus, 
 function PromptCard({ prompt, draft, isSubmitted, onChange, onSubmit }) {
   return (
     <div className={`bg-cream-dark rounded-2xl border-2 p-6 transition-all ${isSubmitted ? 'border-green-400' : 'border-brand-red/20'}`}>
-      <p className="font-display text-xl font-bold italic text-gray-900 mb-5 leading-snug">
+      <p className="font-body font-bold text-gray-900 text-xl mb-5 leading-snug">
         {prompt.promptText}
       </p>
 
@@ -108,7 +109,7 @@ function PromptCard({ prompt, draft, isSubmitted, onChange, onSubmit }) {
           <div className="flex items-center justify-between">
             <span className="text-xs font-body text-gray-400">{draft.length}/200</span>
             <button
-              onClick={onSubmit}
+              onClick={() => { playTap(); onSubmit(); }}
               disabled={!draft.trim()}
               className="bg-brand-red text-cream font-display font-bold italic px-6 py-2.5 rounded-xl transition-all hover:bg-red-900 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
             >

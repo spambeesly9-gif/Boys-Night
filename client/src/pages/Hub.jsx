@@ -1,4 +1,45 @@
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { playFart } from '../utils/sounds';
+
+// Typewriter sequence: type "Bang Sesh" → pause → backspace → type "Boys Night"
+const PHASE1 = ['B','Ba','Ban','Bang','Bang ','Bang S','Bang Se','Bang Ses','Bang Sesh'];
+const PHASE2 = ['Bang Ses','Bang Se','Bang S','Bang ','Bang','Ban','Ba','B',''];
+const PHASE3 = ['B','Bo','Boy','Boys','Boys ','Boys N','Boys Ni','Boys Nig','Boys Nigh','Boys Night'];
+
+function useTypewriter() {
+  const [text, setText] = useState('');
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    let i = 0;
+    let phase = 1;
+    const frames = PHASE1;
+
+    function tick() {
+      if (phase === 1) {
+        setText(PHASE1[i]);
+        i++;
+        if (i >= PHASE1.length) { phase = 2; i = 0; setTimeout(tick, 700); return; }
+        setTimeout(tick, 90);
+      } else if (phase === 2) {
+        setText(PHASE2[i]);
+        i++;
+        if (i >= PHASE2.length) { phase = 3; i = 0; setTimeout(tick, 120); return; }
+        setTimeout(tick, 60);
+      } else {
+        setText(PHASE3[i]);
+        i++;
+        if (i >= PHASE3.length) { setDone(true); return; }
+        setTimeout(tick, 100);
+      }
+    }
+    const t = setTimeout(tick, 400);
+    return () => clearTimeout(t);
+  }, []);
+
+  return { text, done };
+}
 
 const GAMES = [
   {
@@ -6,23 +47,50 @@ const GAMES = [
     name: 'Quiplash',
     description: 'Write the funniest answer. Pray your friends have taste.',
     players: '3–8 players',
-    emoji: '🎤',
   },
 ];
 
 export default function Hub() {
   const navigate = useNavigate();
+  const { text, done } = useTypewriter();
+  const [showDevil, setShowDevil] = useState(false);
+  const [showBubble, setShowBubble] = useState(false);
+
+  useEffect(() => {
+    if (!done) return;
+    const t1 = setTimeout(() => setShowDevil(true), 300);
+    const t2 = setTimeout(() => setShowBubble(true), 750);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [done]);
+
+  const handleGameClick = (slug) => {
+    playFart();
+    setTimeout(() => navigate(`/${slug}`), 350);
+  };
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
       {/* Header */}
-      <header className="pt-16 pb-6 text-center px-4">
-        <h1 className="font-display text-7xl md:text-8xl font-black italic text-brand-red leading-none tracking-tight">
-          Boys Night
+      <header className="pt-16 pb-6 text-center px-4 relative">
+        <h1 className="font-display text-7xl md:text-8xl font-bold italic text-brand-red leading-none tracking-tight min-h-[1.2em]">
+          {text}
+          {!done && <span className="animate-pulse">|</span>}
         </h1>
-        <p className="font-body font-bold text-gray-800 text-lg mt-4">
+        <p className="font-body font-bold text-gray-700 text-lg mt-5">
           The few hours where you actually feel something.
         </p>
+
+        {/* Devil + bubble */}
+        {showDevil && (
+          <div className="absolute left-6 bottom-0 flex items-end gap-2 devil-in">
+            <span className="text-4xl select-none">😈</span>
+            {showBubble && (
+              <div className="bubble-pop mb-1 bg-white border-2 border-gray-200 rounded-2xl rounded-bl-none px-3 py-1.5 shadow-sm">
+                <span className="font-body font-bold text-gray-700 text-sm">Hehe</span>
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Divider */}
@@ -39,15 +107,9 @@ export default function Hub() {
           {GAMES.map((game) => (
             <button
               key={game.slug}
-              onClick={() => navigate(`/${game.slug}`)}
-              className="
-                group relative rounded-2xl border-2 border-brand-red/40 bg-cream
-                p-8 text-left transition-all duration-200
-                hover:border-brand-red hover:bg-cream-dark hover:-translate-y-1 hover:shadow-lg
-                active:scale-[0.98] cursor-pointer
-              "
+              onClick={() => handleGameClick(game.slug)}
+              className="group relative rounded-2xl border-2 border-brand-red/40 bg-cream p-8 text-left transition-all duration-200 hover:border-brand-red hover:bg-cream-dark hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] cursor-pointer"
             >
-              <div className="text-4xl mb-4">{game.emoji}</div>
               <h2 className="font-display text-3xl font-bold italic text-brand-red mb-2">
                 {game.name}
               </h2>
@@ -55,20 +117,14 @@ export default function Hub() {
                 {game.description}
               </p>
               <span className="inline-flex items-center gap-1.5 border border-gray-400/40 rounded-full px-3 py-1 text-xs font-body font-bold text-gray-500">
-                👥 {game.players}
+                {game.players}
               </span>
             </button>
           ))}
 
-          {/* Coming soon */}
           <div className="rounded-2xl border-2 border-dashed border-gray-400/30 p-8 flex flex-col items-start justify-center">
-            <div className="text-4xl mb-4 opacity-30">🃏</div>
-            <h2 className="font-display text-2xl font-bold italic text-gray-400 mb-2">
-              More coming
-            </h2>
-            <p className="font-body text-gray-400 text-sm">
-              When we feel like it.
-            </p>
+            <h2 className="font-display text-2xl font-bold italic text-gray-400 mb-2">More coming</h2>
+            <p className="font-body text-gray-400 text-sm">When we feel like it.</p>
           </div>
         </div>
       </main>

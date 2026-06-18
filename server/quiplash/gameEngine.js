@@ -110,10 +110,10 @@ function fillMissingAnswers(prompt) {
   }
 }
 
-function tallyReveal(prompt, players, round) {
+function tallyReveal(prompt, players, round, totalRounds) {
   fillMissingAnswers(prompt);
 
-  const multiplier = round === 3 ? 2 : 1;
+  const multiplier = round === (totalRounds ?? 3) ? 2 : 1;
   const totalVoters = prompt.votes.length;
   const pointsAwarded = {};
 

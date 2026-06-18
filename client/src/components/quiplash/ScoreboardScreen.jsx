@@ -1,3 +1,4 @@
+import { playTap } from '../../utils/sounds';
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 export default function ScoreboardScreen({ players, round, isFinal, isHost, onNext, myId }) {
@@ -42,7 +43,7 @@ export default function ScoreboardScreen({ players, round, isFinal, isHost, onNe
 
         {isHost ? (
           <button
-            onClick={onNext}
+            onClick={() => { playTap(); onNext(); }}
             className="w-full bg-brand-red text-cream font-display font-black italic text-xl rounded-xl py-4 transition-all hover:bg-red-900 active:scale-[0.98]"
           >
             {nextLabel}

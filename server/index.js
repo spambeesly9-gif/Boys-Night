@@ -5,7 +5,7 @@ const cors = require('cors');
 const {
   createRoom, getRoom, removeRoom, addPlayer,
   markDisconnected, publicState, startGame,
-  submitAnswer, castVote, nextRound,
+  submitAnswer, castVote, nextRound, forceEndGame,
 } = require('./rooms');
 
 const app = express();
@@ -49,7 +49,7 @@ io.on('connection', (socket) => {
     io.to(code).emit('game_state', publicState(room));
   });
 
-  socket.on('start_game', ({ roomCode }) => {
+  socket.on('start_game', ({ roomCode, config }) => {
     const room = getRoom(roomCode);
     if (!room || room.hostId !== socket.id) return;
     const connected = room.players.filter(p => p.isConnected);
@@ -57,7 +57,13 @@ io.on('connection', (socket) => {
       socket.emit('join_error', 'Need at least 3 players to start.');
       return;
     }
-    startGame(io, room);
+    startGame(io, room, config || {});
+  });
+
+  socket.on('force_end_game', ({ roomCode }) => {
+    const room = getRoom(roomCode);
+    if (!room) return;
+    forceEndGame(io, room, socket.id);
   });
 
   socket.on('submit_answer', ({ roomCode, promptId, answerText }) => {

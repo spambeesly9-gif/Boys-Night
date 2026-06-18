@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import CountdownTimer from './CountdownTimer';
+import { playTap } from '../../utils/sounds';
 
 export default function VotingPhase({ promptId, promptText, assignedPlayerIds, answers, promptIndex, totalPrompts, duration, round, myId, voteTally, onVote }) {
   const [voted, setVoted] = useState(null);
@@ -10,6 +11,7 @@ export default function VotingPhase({ promptId, promptText, assignedPlayerIds, a
 
   const handleVote = (forPlayerId) => {
     if (!canVote || voted) return;
+    playTap();
     setVoted(forPlayerId);
     onVote(promptId, forPlayerId);
   };
@@ -32,7 +34,7 @@ export default function VotingPhase({ promptId, promptText, assignedPlayerIds, a
 
       <div className="bg-cream border-b-2 border-brand-red/10 px-6 py-6">
         <div className="max-w-2xl mx-auto text-center">
-          <p className="font-display text-2xl font-bold italic text-gray-900 leading-snug">
+          <p className="font-body font-bold text-gray-900 text-2xl leading-snug">
             {promptText}
           </p>
         </div>

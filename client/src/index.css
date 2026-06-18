@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Nunito:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,700&family=Nunito:wght@400;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,15 +8,18 @@
 
 body {
   margin: 0;
-  background: #F2EAD8;
+  background-color: #F2EAD8;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
   font-family: 'Nunito', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 #root { min-height: 100vh; }
 
+/* Countdown ring */
 .countdown-ring { transition: stroke-dashoffset 1s linear; }
 
+/* Quiplash burst */
 @keyframes quiplash-burst {
   0%   { transform: scale(0.3) rotate(-8deg); opacity: 0; }
   50%  { transform: scale(1.2) rotate(3deg); opacity: 1; }
@@ -25,6 +28,7 @@ body {
 }
 .quiplash-burst { animation: quiplash-burst 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards; }
 
+/* Score pop */
 @keyframes score-pop {
   0%   { transform: scale(1); }
   40%  { transform: scale(1.4); }
@@ -32,7 +36,31 @@ body {
 }
 .score-pop { animation: score-pop 0.4s ease-out; }
 
+/* Confetti */
 @keyframes confetti-fall {
   0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
   100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
+
+/* Devil slide in */
+@keyframes devil-in {
+  0%   { transform: translateX(-120px); opacity: 0; }
+  70%  { transform: translateX(8px); }
+  100% { transform: translateX(0); opacity: 1; }
+}
+.devil-in { animation: devil-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* Bubble pop */
+@keyframes bubble-pop {
+  0%   { transform: scale(0) translateY(4px); opacity: 0; }
+  70%  { transform: scale(1.1) translateY(-2px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.bubble-pop { animation: bubble-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* Slide up */
+@keyframes slideUp {
+  0%   { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up { animation: slideUp 0.35s ease-out forwards; }
