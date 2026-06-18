@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playFart, playTap } from '../../utils/sounds';
 
@@ -6,18 +6,25 @@ export default function HPJoinScreen({ onCreate, onJoin, error }) {
   const [tab, setTab] = useState('create');
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (error) setSubmitting(false);
+  }, [error]);
 
   const handleCreate = (e) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || submitting) return;
+    setSubmitting(true);
     playFart();
     setTimeout(() => onCreate(name.trim()), 350);
   };
 
   const handleJoin = (e) => {
     e.preventDefault();
-    if (!name.trim() || !code.trim()) return;
+    if (!name.trim() || !code.trim() || submitting) return;
+    setSubmitting(true);
     playFart();
     setTimeout(() => onJoin(code.trim().toUpperCase(), name.trim()), 350);
   };
@@ -67,10 +74,10 @@ export default function HPJoinScreen({ onCreate, onJoin, error }) {
                 </div>
                 <button
                   type="submit"
-                  disabled={!name.trim()}
+                  disabled={!name.trim() || submitting}
                   className="w-full bg-brand-red text-cream font-display font-bold italic text-lg rounded-xl py-3 transition-all hover:bg-red-900 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  Create Room →
+                  {submitting ? 'Connecting…' : 'Create Room →'}
                 </button>
               </form>
             ) : (
@@ -97,10 +104,10 @@ export default function HPJoinScreen({ onCreate, onJoin, error }) {
                 </div>
                 <button
                   type="submit"
-                  disabled={!name.trim() || code.trim().length < 4}
+                  disabled={!name.trim() || code.trim().length < 4 || submitting}
                   className="w-full bg-brand-red text-cream font-display font-bold italic text-lg rounded-xl py-3 transition-all hover:bg-red-900 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  Join Room →
+                  {submitting ? 'Connecting…' : 'Join Room →'}
                 </button>
               </form>
             )}
