@@ -1,11 +1,15 @@
-const cache = {};
+// ── Sound toggle ─────────────────────────────────────────────────────────────
+let _enabled = localStorage.getItem('bnSound') !== 'false';
+export const getSoundEnabled = () => _enabled;
+export const setSoundEnabled = (v) => {
+  _enabled = v;
+  localStorage.setItem('bnSound', v ? 'true' : 'false');
+  if (!v) stopLobbyMusic();
+};
 
-function getAudio(src) {
-  if (!cache[src]) cache[src] = new Audio(src);
-  return cache[src];
-}
-
+// ── Synth helpers ─────────────────────────────────────────────────────────────
 function synthClick(freq, duration, volume) {
+  if (!_enabled) return;
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = ctx.createOscillator();
@@ -22,41 +26,42 @@ function synthClick(freq, duration, volume) {
   } catch {}
 }
 
-export function playTypeKey() {
-  synthClick(1100, 0.055, 0.035);
-}
+export function playTypeKey()     { synthClick(1100, 0.055, 0.018); }
+export function playBackspaceKey(){ synthClick(650,  0.075, 0.014); }
 
-export function playBackspaceKey() {
-  synthClick(650, 0.075, 0.028);
-}
-
+// ── Audio file helpers ────────────────────────────────────────────────────────
 export function playYay() {
+  if (!_enabled) return;
   try {
     const a = new Audio('/freesound_community-yay-6120.mp3');
-    a.volume = 0.8;
-    a.play();
+    a.volume = 0.4;
+    a.play().catch(() => {});
   } catch {}
 }
 
 export function playFart() {
+  if (!_enabled) return;
   try {
     const a = new Audio('/freesound_community-fart-83471.mp3');
-    a.volume = 0.7;
-    a.play();
+    a.volume = 0.35;
+    a.play().catch(() => {});
   } catch {}
 }
 
 export function playTap() {
+  if (!_enabled) return;
   try {
     const a = new Audio('/latent-rick-soft-app-button-tap-sound-3-547874.mp3');
-    a.volume = 0.5;
-    a.play();
+    a.volume = 0.25;
+    a.play().catch(() => {});
   } catch {}
 }
 
+// ── Lobby music ───────────────────────────────────────────────────────────────
 let lobbyMusic = null;
 
 export function startLobbyMusic() {
+  if (!_enabled) return;
   try {
     if (!lobbyMusic) {
       lobbyMusic = new Audio('/mcanden-swing-street-nights-514185.mp3');
@@ -68,9 +73,9 @@ export function startLobbyMusic() {
 
     let vol = 0;
     const fade = setInterval(() => {
-      vol = Math.min(vol + 0.02, 0.3);
+      vol = Math.min(vol + 0.01, 0.15);
       lobbyMusic.volume = vol;
-      if (vol >= 0.3) clearInterval(fade);
+      if (vol >= 0.15) clearInterval(fade);
     }, 80);
   } catch {}
 }
@@ -79,7 +84,7 @@ export function stopLobbyMusic() {
   if (!lobbyMusic) return;
   let vol = lobbyMusic.volume;
   const fade = setInterval(() => {
-    vol = Math.max(vol - 0.02, 0);
+    vol = Math.max(vol - 0.01, 0);
     lobbyMusic.volume = vol;
     if (vol <= 0) {
       clearInterval(fade);

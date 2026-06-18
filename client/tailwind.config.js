@@ -8,8 +8,8 @@ export default {
         body: ['Nunito', 'sans-serif'],
       },
       colors: {
-        cream: '#F2EAD8',
-        'cream-dark': '#E8DEC8',
+        cream: '#FFFFFF',
+        'cream-dark': '#F3F4F6',
         brand: {
           red:    '#A82020',
           blue:   '#2563EB',
@@ -17,6 +17,16 @@ export default {
           green:  '#10B981',
           purple: '#7C3AED',
           orange: '#EA580C',
+        },
+        ql: {
+          accent: '#A82020',
+          light:  '#FFF1F1',
+          border: '#F5C6C6',
+        },
+        hp: {
+          accent: '#6D28D9',
+          light:  '#F5F3FF',
+          border: '#C4B5FD',
         },
       },
       keyframes: {

@@ -35,18 +35,37 @@ export default function HPResult({
     <div className="min-h-screen bg-cream flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-lg">
         {/* Caught / Escaped header */}
-        <div className={`rounded-3xl border-2 p-8 mb-6 text-center ${caught ? 'bg-green-50 border-green-300' : 'bg-red-50 border-brand-red/40'}`}>
-          <div className="text-5xl mb-3">{caught ? '🚨' : '🕶️'}</div>
-          <h1 className={`font-display text-6xl font-black italic mb-2 ${caught ? 'text-green-700' : 'text-brand-red'}`}>
-            {caught ? 'CAUGHT!' : 'ESCAPED!'}
-          </h1>
-          <p className="font-body font-bold text-gray-700 text-base">
-            {caught
-              ? `${imposterName} was exposed. The room figured it out.`
-              : `${imposterName} got away with it. Smooth operator.`
-            }
-          </p>
-        </div>
+        {(() => {
+          const iAmCzar = myId === czarId;
+          const iAmImposter = myId === imposterId;
+          const iVotedCorrectly = caught && votes?.[myId] === imposterId;
+
+          let personalLine = '';
+          if (caught) {
+            if (iAmImposter)       personalLine = 'How are you this bad?';
+            else if (iAmCzar)      personalLine = 'The imposter was found.';
+            else                   personalLine = 'Wow, you finally did something right.';
+          } else {
+            if (iAmImposter)       personalLine = 'You sneaky son of a bitch!';
+            else if (iAmCzar)      personalLine = 'The imposter got away.';
+            else                   personalLine = 'If there is a window around, just jump out.';
+          }
+
+          return (
+            <div className={`rounded-3xl border-2 p-8 mb-6 text-center ${caught ? 'bg-green-50 border-green-300' : 'bg-red-50 border-brand-red/40'}`}>
+              <div className="text-5xl mb-3">{caught ? '🚨' : '🕶️'}</div>
+              <h1 className={`font-display text-6xl font-black italic mb-2 ${caught ? 'text-green-700' : 'text-brand-red'}`}>
+                {caught ? 'CAUGHT!' : 'ESCAPED!'}
+              </h1>
+              <p className="font-body font-bold text-gray-800 text-base mb-1">
+                {imposterName} was the imposter.
+              </p>
+              <p className="font-body text-gray-600 text-sm italic">
+                "{personalLine}"
+              </p>
+            </div>
+          );
+        })()}
 
         {/* Questions reveal */}
         <div className="bg-cream-dark rounded-2xl border-2 border-brand-red/20 p-5 mb-5">
