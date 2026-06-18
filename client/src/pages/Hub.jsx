@@ -58,6 +58,12 @@ const GAMES = [
     description: 'Write the funniest answer. Pray your friends have taste.',
     players: '3–8 players',
   },
+  {
+    slug: 'hotpants',
+    name: 'Hot Pants',
+    description: 'One of you is a liar. Everyone else has to figure out who.',
+    players: '3–8 players',
+  },
 ];
 
 export default function Hub() {
