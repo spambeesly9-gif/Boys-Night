@@ -23,11 +23,11 @@ function synthClick(freq, duration, volume) {
 }
 
 export function playTypeKey() {
-  synthClick(1100, 0.055, 0.07);
+  synthClick(1100, 0.055, 0.035);
 }
 
 export function playBackspaceKey() {
-  synthClick(650, 0.075, 0.055);
+  synthClick(650, 0.075, 0.028);
 }
 
 export function playYay() {

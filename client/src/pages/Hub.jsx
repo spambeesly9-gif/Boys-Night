@@ -8,37 +8,44 @@ const PHASE2 = ['Bang Ses','Bang Se','Bang S','Bang ','Bang','Ban','Ba','B',''];
 const PHASE3 = ['B','Bo','Boy','Boys','Boys ','Boys N','Boys Ni','Boys Nig','Boys Nigh','Boys Night'];
 
 function useTypewriter() {
-  const [text, setText] = useState('');
-  const [done, setDone] = useState(false);
+  const alreadyPlayed = sessionStorage.getItem('twDone') === '1';
+  const [text, setText] = useState(alreadyPlayed ? 'Boys Night' : '');
+  const [done, setDone] = useState(alreadyPlayed);
 
   useEffect(() => {
+    if (alreadyPlayed) return;
+
     let i = 0;
     let phase = 1;
-    const frames = PHASE1;
+    let timerId;
 
     function tick() {
       if (phase === 1) {
         setText(PHASE1[i]);
         playTypeKey();
         i++;
-        if (i >= PHASE1.length) { phase = 2; i = 0; setTimeout(tick, 700); return; }
-        setTimeout(tick, 90);
+        if (i >= PHASE1.length) { phase = 2; i = 0; timerId = setTimeout(tick, 700); return; }
+        timerId = setTimeout(tick, 90);
       } else if (phase === 2) {
         setText(PHASE2[i]);
         playBackspaceKey();
         i++;
-        if (i >= PHASE2.length) { phase = 3; i = 0; setTimeout(tick, 120); return; }
-        setTimeout(tick, 60);
+        if (i >= PHASE2.length) { phase = 3; i = 0; timerId = setTimeout(tick, 120); return; }
+        timerId = setTimeout(tick, 60);
       } else {
         setText(PHASE3[i]);
         playTypeKey();
         i++;
-        if (i >= PHASE3.length) { setDone(true); return; }
-        setTimeout(tick, 100);
+        if (i >= PHASE3.length) {
+          setDone(true);
+          sessionStorage.setItem('twDone', '1');
+          return;
+        }
+        timerId = setTimeout(tick, 100);
       }
     }
-    const t = setTimeout(tick, 400);
-    return () => clearTimeout(t);
+    timerId = setTimeout(tick, 400);
+    return () => clearTimeout(timerId);
   }, []);
 
   return { text, done };
