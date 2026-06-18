@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { playYay } from '../../utils/sounds';
 
 const COLORS = ['#A82020', '#2563EB', '#F59E0B', '#10B981', '#7C3AED', '#EA580C'];
 
@@ -36,6 +37,8 @@ const WINNER_LINES = [
 export default function WinnerScreen({ players, myId }) {
   const navigate = useNavigate();
   const sorted = [...players].sort((a, b) => b.score - a.score);
+
+  useEffect(() => { playYay(); }, []);
   const winner = sorted[0];
   const isWinner = winner?.id === myId;
 

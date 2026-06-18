@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['Lora', 'serif'],
+        display: ['"Playfair Display"', 'serif'],
         body: ['Nunito', 'sans-serif'],
       },
       colors: {

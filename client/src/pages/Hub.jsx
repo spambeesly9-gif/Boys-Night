@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { playFart } from '../utils/sounds';
+import { playFart, playTypeKey, playBackspaceKey } from '../utils/sounds';
 
 // Typewriter sequence: type "Bang Sesh" → pause → backspace → type "Boys Night"
 const PHASE1 = ['B','Ba','Ban','Bang','Bang ','Bang S','Bang Se','Bang Ses','Bang Sesh'];
@@ -19,16 +19,19 @@ function useTypewriter() {
     function tick() {
       if (phase === 1) {
         setText(PHASE1[i]);
+        playTypeKey();
         i++;
         if (i >= PHASE1.length) { phase = 2; i = 0; setTimeout(tick, 700); return; }
         setTimeout(tick, 90);
       } else if (phase === 2) {
         setText(PHASE2[i]);
+        playBackspaceKey();
         i++;
         if (i >= PHASE2.length) { phase = 3; i = 0; setTimeout(tick, 120); return; }
         setTimeout(tick, 60);
       } else {
         setText(PHASE3[i]);
+        playTypeKey();
         i++;
         if (i >= PHASE3.length) { setDone(true); return; }
         setTimeout(tick, 100);
@@ -53,15 +56,6 @@ const GAMES = [
 export default function Hub() {
   const navigate = useNavigate();
   const { text, done } = useTypewriter();
-  const [showDevil, setShowDevil] = useState(false);
-  const [showBubble, setShowBubble] = useState(false);
-
-  useEffect(() => {
-    if (!done) return;
-    const t1 = setTimeout(() => setShowDevil(true), 300);
-    const t2 = setTimeout(() => setShowBubble(true), 750);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [done]);
 
   const handleGameClick = (slug) => {
     playFart();
@@ -79,18 +73,6 @@ export default function Hub() {
         <p className="font-body font-bold text-gray-700 text-lg mt-5">
           The few hours where you actually feel something.
         </p>
-
-        {/* Devil + bubble */}
-        {showDevil && (
-          <div className="absolute left-6 bottom-0 flex items-end gap-2 devil-in">
-            <span className="text-4xl select-none">😈</span>
-            {showBubble && (
-              <div className="bubble-pop mb-1 bg-white border-2 border-gray-200 rounded-2xl rounded-bl-none px-3 py-1.5 shadow-sm">
-                <span className="font-body font-bold text-gray-700 text-sm">Hehe</span>
-              </div>
-            )}
-          </div>
-        )}
       </header>
 
       {/* Divider */}
@@ -130,7 +112,7 @@ export default function Hub() {
       </main>
 
       <footer className="text-center pb-8 text-gray-400 text-xs font-body">
-        No refunds. No regrets.
+        No boundaries exist past this point.
       </footer>
     </div>
   );

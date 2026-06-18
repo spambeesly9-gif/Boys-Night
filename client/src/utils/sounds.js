@@ -5,6 +5,39 @@ function getAudio(src) {
   return cache[src];
 }
 
+function synthClick(freq, duration, volume) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+    osc.onended = () => ctx.close();
+  } catch {}
+}
+
+export function playTypeKey() {
+  synthClick(1100, 0.055, 0.07);
+}
+
+export function playBackspaceKey() {
+  synthClick(650, 0.075, 0.055);
+}
+
+export function playYay() {
+  try {
+    const a = new Audio('/freesound_community-yay-6120.mp3');
+    a.volume = 0.8;
+    a.play();
+  } catch {}
+}
+
 export function playFart() {
   try {
     const a = new Audio('/freesound_community-fart-83471.mp3');
