@@ -4,12 +4,14 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['Fredoka', 'sans-serif'],
+        display: ['"Playfair Display"', 'serif'],
         body: ['Nunito', 'sans-serif'],
       },
       colors: {
+        cream: '#F2EAD8',
+        'cream-dark': '#E8DEC8',
         brand: {
-          red:    '#E63946',
+          red:    '#A82020',
           blue:   '#2563EB',
           yellow: '#F59E0B',
           green:  '#10B981',
@@ -21,7 +23,6 @@ export default {
         'bounce-in': 'bounceIn 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97)',
         'slide-up':  'slideUp 0.35s ease-out',
         'pop':       'pop 0.25s ease-out',
-        'quiplash':  'quiplash 0.6s ease-out',
       },
       keyframes: {
         bounceIn: {
@@ -37,11 +38,6 @@ export default {
           '0%':   { transform: 'scale(1)' },
           '50%':  { transform: 'scale(1.08)' },
           '100%': { transform: 'scale(1)' },
-        },
-        quiplash: {
-          '0%':   { transform: 'scale(0.5) rotate(-5deg)', opacity: 0 },
-          '60%':  { transform: 'scale(1.15) rotate(2deg)' },
-          '100%': { transform: 'scale(1) rotate(0deg)', opacity: 1 },
         },
       },
     },

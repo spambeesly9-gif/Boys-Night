@@ -1,65 +1,38 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Nunito:wght@400;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background: #f8f7ff;
+  background: #F2EAD8;
   font-family: 'Nunito', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-#root {
-  min-height: 100vh;
-}
+#root { min-height: 100vh; }
 
-/* Confetti particle */
-.confetti-particle {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  top: -20px;
-  animation: confetti-fall linear forwards;
-  border-radius: 2px;
-  pointer-events: none;
-  z-index: 9999;
-}
+.countdown-ring { transition: stroke-dashoffset 1s linear; }
 
-@keyframes confetti-fall {
-  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-}
-
-/* Countdown ring */
-.countdown-ring {
-  transition: stroke-dashoffset 1s linear;
-}
-
-/* Quiplash burst */
 @keyframes quiplash-burst {
   0%   { transform: scale(0.3) rotate(-8deg); opacity: 0; }
   50%  { transform: scale(1.2) rotate(3deg); opacity: 1; }
   70%  { transform: scale(0.95) rotate(-1deg); }
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
+.quiplash-burst { animation: quiplash-burst 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards; }
 
-.quiplash-burst {
-  animation: quiplash-burst 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
-}
-
-/* Points counter */
 @keyframes score-pop {
   0%   { transform: scale(1); }
   40%  { transform: scale(1.4); }
   100% { transform: scale(1); }
 }
+.score-pop { animation: score-pop 0.4s ease-out; }
 
-.score-pop {
-  animation: score-pop 0.4s ease-out;
+@keyframes confetti-fall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
