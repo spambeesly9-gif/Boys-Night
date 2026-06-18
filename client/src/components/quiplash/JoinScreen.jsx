@@ -33,7 +33,7 @@ export default function JoinScreen({ onCreate, onJoin, error }) {
 
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="font-display text-5xl font-bold italic text-brand-red">Quiplash</h1>
+          <h1 className="font-display text-5xl font-bold text-brand-red">Quiplash</h1>
           <p className="font-body text-gray-600 mt-2 font-semibold text-sm">
             The funniest answer wins. Usually.
           </p>

@@ -99,7 +99,7 @@ export default function Hub() {
               onClick={() => handleGameClick(game.slug)}
               className="group relative rounded-2xl border-2 border-brand-red/40 bg-cream p-8 text-left transition-all duration-200 hover:border-brand-red hover:bg-cream-dark hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] cursor-pointer"
             >
-              <h2 className="font-display text-3xl font-bold italic text-brand-red mb-2">
+              <h2 className="font-display text-3xl font-bold text-brand-red mb-2">
                 {game.name}
               </h2>
               <p className="font-body text-gray-700 text-sm leading-relaxed mb-5">
