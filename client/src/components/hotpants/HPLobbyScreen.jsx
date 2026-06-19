@@ -44,9 +44,9 @@ export default function HPLobbyScreen({ roomCode, players, isHost, onStart, myId
                     : 'bg-cream text-gray-700'
                 } ${!p.isConnected ? 'opacity-40' : ''}`}
               >
-                <span>{p.id === players[0]?.id ? '👑' : '🎭'}</span>
-                <span>{p.name}</span>
-                {p.id === myId && <span className="ml-auto text-xs font-bold text-brand-red">you</span>}
+                <span className="flex-1">{p.name}</span>
+                {p.id === players[0]?.id && <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">host</span>}
+                {p.id === myId && <span className="text-xs font-bold text-brand-red">you</span>}
               </div>
             ))}
           </div>
@@ -55,7 +55,7 @@ export default function HPLobbyScreen({ roomCode, players, isHost, onStart, myId
         {/* Game config (host only) */}
         {isHost && (
           <div className="bg-cream-dark rounded-2xl border-2 border-brand-red/20 p-5 mb-5">
-            <p className="font-body font-bold text-gray-700 text-sm mb-3">⚙ Game Settings</p>
+            <p className="font-body font-bold text-gray-700 text-sm mb-3">Game Settings</p>
             <div>
               <p className="font-body font-bold text-gray-600 text-xs mb-2 uppercase tracking-widest">Rounds</p>
               <div className="flex gap-2">
@@ -87,7 +87,7 @@ export default function HPLobbyScreen({ roomCode, players, isHost, onStart, myId
           </button>
         ) : (
           <div className="text-center font-body font-semibold text-gray-500 text-base py-4">
-            ⏳ Waiting for the host to grow a pair…
+            Waiting for the host to grow a pair…
           </div>
         )}
       </div>

@@ -75,7 +75,6 @@ export default function HPVoting({ answers, mainQuestion, round, duration, czarI
             <p className="font-body font-bold text-gray-500 text-xs uppercase tracking-widest mb-2">
               Round {round} — Voting
             </p>
-            <div className="text-5xl mb-3">🗳️</div>
             <h1 className="font-display text-3xl font-bold italic text-gray-900 mb-2">
               Vote locked in
             </h1>

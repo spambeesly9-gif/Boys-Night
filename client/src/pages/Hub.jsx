@@ -51,31 +51,6 @@ function useTypewriter() {
   return { text, done };
 }
 
-const GAMES = [
-  {
-    slug: 'quiplash',
-    name: 'Quiplash',
-    description: 'Write the funniest answer. Pray your friends have taste.',
-    players: '3–8 players',
-    emoji: '🎤',
-    headerBg: '#FFF1F1',
-    accentColor: '#A82020',
-    borderColor: '#F5C6C6',
-    tag: 'Comedy',
-  },
-  {
-    slug: 'hotpants',
-    name: 'Hot Pants',
-    description: 'One of you is a liar. Everyone else has to figure out who.',
-    players: '3–8 players',
-    emoji: '🕵️',
-    headerBg: '#F5F3FF',
-    accentColor: '#6D28D9',
-    borderColor: '#C4B5FD',
-    tag: 'Deception',
-  },
-];
-
 export default function Hub() {
   const navigate = useNavigate();
   const { text, done } = useTypewriter();
@@ -109,60 +84,73 @@ export default function Hub() {
       {/* Game cards */}
       <main className="flex-1 flex justify-center px-6 pb-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl w-full">
-          {GAMES.map((game) => (
-            <button
-              key={game.slug}
-              onClick={() => handleGameClick(game.slug)}
-              style={{ borderColor: game.borderColor }}
-              className="group rounded-3xl border-2 overflow-hidden text-left transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl active:scale-[0.98] cursor-pointer bg-white"
-            >
-              {/* Coloured header with big emoji */}
-              <div
-                className="h-36 flex items-center justify-center relative overflow-hidden"
-                style={{ backgroundColor: game.headerBg }}
+
+          {/* ── Quiplash — comedy-poster: black header, ghost quotation mark ── */}
+          <button
+            onClick={() => handleGameClick('quiplash')}
+            className="group rounded-3xl border border-gray-200 overflow-hidden text-left transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl active:scale-[0.98] cursor-pointer bg-white"
+          >
+            <div className="h-44 bg-gray-950 relative overflow-hidden flex flex-col justify-end px-6 pb-5">
+              <span
+                className="absolute font-display font-black text-white/[0.06] leading-none select-none pointer-events-none"
+                style={{ fontSize: '220px', top: '-30px', left: '-10px', lineHeight: 1 }}
               >
-                <span className="text-7xl transition-transform duration-300 group-hover:scale-110 select-none">
-                  {game.emoji}
-                </span>
-                <span
-                  className="absolute top-3 right-3 text-xs font-body font-black uppercase tracking-widest px-2.5 py-1 rounded-full"
-                  style={{ backgroundColor: game.accentColor + '18', color: game.accentColor }}
-                >
-                  {game.tag}
+                "
+              </span>
+              <h2 className="font-display text-4xl font-bold text-white relative z-10">
+                Quiplash
+              </h2>
+              <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-brand-red" />
+            </div>
+            <div className="p-6">
+              <p className="font-body text-gray-500 text-sm leading-relaxed mb-6">
+                Write the funniest answer. Pray your friends have taste.
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-body font-semibold text-gray-400">3–8 players</span>
+                <span className="text-sm font-body font-bold text-brand-red group-hover:translate-x-1 transition-transform">
+                  Play →
                 </span>
               </div>
+            </div>
+          </button>
 
-              {/* Content */}
-              <div className="p-6">
-                <h2
-                  className="font-display text-2xl font-bold mb-1.5"
-                  style={{ color: game.accentColor }}
-                >
-                  {game.name}
-                </h2>
-                <p className="font-body text-gray-500 text-sm leading-relaxed mb-5">
-                  {game.description}
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-body font-bold text-gray-400 border border-gray-200 rounded-full px-3 py-1">
-                    {game.players}
-                  </span>
-                  <span
-                    className="text-sm font-body font-bold group-hover:translate-x-1 transition-transform"
-                    style={{ color: game.accentColor }}
-                  >
-                    Play →
-                  </span>
-                </div>
+          {/* ── Hot Pants — caution tape: diagonal stripe header ── */}
+          <button
+            onClick={() => handleGameClick('hotpants')}
+            className="group rounded-3xl border border-gray-200 overflow-hidden text-left transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl active:scale-[0.98] cursor-pointer bg-white"
+          >
+            <div
+              className="h-44 relative overflow-hidden flex flex-col justify-end px-6 pb-5"
+              style={{
+                background: 'repeating-linear-gradient(135deg, #1e1b4b 0px, #1e1b4b 14px, #2e1065 14px, #2e1065 28px)',
+              }}
+            >
+              <h2
+                className="font-display text-4xl font-bold text-white relative z-10"
+                style={{ letterSpacing: '0.04em' }}
+              >
+                Hot Pants
+              </h2>
+              <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-violet-400" />
+            </div>
+            <div className="p-6">
+              <p className="font-body text-gray-500 text-sm leading-relaxed mb-6">
+                One of you is a liar. Everyone else has to figure out who.
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-body font-semibold text-gray-400">3–8 players</span>
+                <span className="text-sm font-body font-bold text-violet-700 group-hover:translate-x-1 transition-transform">
+                  Play →
+                </span>
               </div>
-            </button>
-          ))}
+            </div>
+          </button>
 
-          {/* More coming */}
-          <div className="rounded-3xl border-2 border-dashed border-gray-200 p-8 flex flex-col items-start justify-center">
-            <p className="text-3xl mb-3">🃏</p>
-            <h2 className="font-display text-xl font-bold italic text-gray-400 mb-1">More coming</h2>
-            <p className="font-body text-gray-400 text-sm">When we feel like it.</p>
+          {/* ── More coming ── */}
+          <div className="rounded-3xl border-2 border-dashed border-gray-200 p-8 flex flex-col justify-end min-h-[200px]">
+            <h2 className="font-display text-xl font-bold italic text-gray-300 mb-1">More coming</h2>
+            <p className="font-body text-gray-300 text-sm">When we feel like it.</p>
           </div>
         </div>
       </main>

@@ -45,7 +45,7 @@ export default function HPReveal({ answers, mainQuestion, round, czarId, myId, i
             The answers are in.
           </h1>
           <p className="font-body text-gray-500 text-sm mt-1">
-            Talk it out. Who's full of 💩?
+            Talk it out. Who doesn't fit?
           </p>
         </div>
 

@@ -82,7 +82,6 @@ export default function HPAnswerPhase({
     return (
       <div className="min-h-screen bg-cream flex flex-col items-center justify-center px-4 py-12">
         <div className="w-full max-w-md text-center">
-          <div className="text-6xl mb-4">✅</div>
           <h1 className="font-display text-3xl font-bold italic text-gray-900 mb-3">
             Answer locked in
           </h1>

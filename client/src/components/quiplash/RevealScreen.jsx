@@ -21,7 +21,7 @@ export default function RevealScreen({ promptText, answers, isQuiplash, promptIn
       {isQuiplash && (
         <div className="bg-brand-red py-4 px-6 text-center">
           <span className="font-display text-3xl font-black italic text-cream quiplash-burst inline-block">
-            🔥 QUIPLASH! 🔥
+            QUIPLASH!
           </span>
         </div>
       )}
@@ -53,7 +53,7 @@ export default function RevealScreen({ promptText, answers, isQuiplash, promptIn
                     <p className="font-body font-semibold text-gray-800 text-lg leading-snug mb-3">{answer.text}</p>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-body font-bold ${isMe ? 'bg-brand-red/10 text-brand-red' : 'bg-cream text-gray-600 border border-gray-200'}`}>
-                        {answer.isSafetyQuip ? '🤐' : '✍️'} {answer.playerName}{isMe && ' (you)'}
+                        {answer.playerName}{isMe && ' (you)'}{answer.isSafetyQuip ? ' — no-show' : ''}
                       </span>
                       <span className="text-sm font-body text-gray-500">
                         {answer.voteCount} vote{answer.voteCount !== 1 ? 's' : ''}

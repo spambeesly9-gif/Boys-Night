@@ -32,7 +32,7 @@ export default function AnswerPhase({ round, duration, myPrompts, answerStatus, 
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div>
             <span className="font-body font-bold text-gray-500 text-xs uppercase tracking-widest">
-              🎤 Quiplash
+              Quiplash
             </span>
             <h2 className="font-display text-2xl font-bold italic text-gray-900">{roundLabel}</h2>
           </div>
@@ -45,7 +45,7 @@ export default function AnswerPhase({ round, duration, myPrompts, answerStatus, 
               key={p.id}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-body font-bold border ${PLAYER_COLORS[i % PLAYER_COLORS.length]}`}
             >
-              <span>{answerStatus[p.id] ? '✓' : '⏳'}</span>
+              <span>{answerStatus[p.id] ? '✓' : '·'}</span>
               <span>{p.name}</span>
             </div>
           ))}
@@ -62,7 +62,6 @@ export default function AnswerPhase({ round, duration, myPrompts, answerStatus, 
         <div className="max-w-2xl mx-auto space-y-6">
           {myPrompts.length === 0 ? (
             <div className="text-center py-16">
-              <div className="text-5xl mb-4">☕</div>
               <p className="font-display text-2xl italic text-gray-500">No prompts for you this round.</p>
               <p className="font-body text-gray-400 mt-2 text-sm">Sit there and think about your life choices.</p>
             </div>
@@ -93,7 +92,6 @@ function PromptCard({ prompt, draft, isSubmitted, onChange, onSubmit }) {
 
       {isSubmitted ? (
         <div className="flex items-center gap-3">
-          <span className="text-2xl">✅</span>
           <span className="font-body font-bold text-green-700">Locked in. Now pray.</span>
         </div>
       ) : (

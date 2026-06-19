@@ -1,5 +1,5 @@
 import { playTap } from '../../utils/sounds';
-const MEDALS = ['🥇', '🥈', '🥉'];
+const RANK_COLORS = ['text-amber-600', 'text-gray-400', 'text-orange-500'];
 
 export default function ScoreboardScreen({ players, round, isFinal, isHost, onNext, myId }) {
   const sorted = [...players].sort((a, b) => b.score - a.score);
@@ -29,8 +29,8 @@ export default function ScoreboardScreen({ players, round, isFinal, isHost, onNe
               key={p.id}
               className={`flex items-center gap-4 px-6 py-4 border-b border-brand-red/10 last:border-0 ${p.id === myId ? 'bg-brand-red/5' : ''}`}
             >
-              <span className="text-2xl w-8 text-center">
-                {i < 3 ? MEDALS[i] : <span className="font-display font-bold text-gray-400">{i + 1}</span>}
+              <span className={`font-display font-bold text-xl w-8 text-center ${RANK_COLORS[i] ?? 'text-gray-400'}`}>
+                {i + 1}
               </span>
               <span className={`font-body font-bold flex-1 text-lg ${p.id === myId ? 'text-brand-red' : 'text-gray-800'}`}>
                 {p.name}
@@ -50,7 +50,7 @@ export default function ScoreboardScreen({ players, round, isFinal, isHost, onNe
           </button>
         ) : (
           <div className="text-center font-body font-semibold text-gray-400 text-base py-4">
-            ⏳ Waiting for the host to stop celebrating…
+            Waiting for the host to stop celebrating…
           </div>
         )}
       </div>

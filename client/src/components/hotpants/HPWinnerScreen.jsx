@@ -49,7 +49,6 @@ export default function HPWinnerScreen({ players, myId }) {
 
       <div className="w-full max-w-md text-center">
         <div className="mb-8">
-          <div className="text-6xl mb-4">🏆</div>
           <p className="font-body font-bold text-gray-500 text-xs uppercase tracking-widest mb-2">Game over</p>
           <h1 className="font-display text-5xl font-black italic text-gray-900 mb-2">
             {winner?.name} wins
@@ -67,7 +66,7 @@ export default function HPWinnerScreen({ players, myId }) {
 
         <div className="bg-cream-dark rounded-2xl border-2 border-brand-red/20 overflow-hidden mb-8">
           {sorted.map((p, i) => {
-            const medals = ['🥇', '🥈', '🥉'];
+            const rankColors = ['text-amber-600', 'text-gray-400', 'text-orange-500'];
             const isMe = p.id === myId;
             return (
               <div
@@ -76,10 +75,8 @@ export default function HPWinnerScreen({ players, myId }) {
                   i === 0 ? 'bg-amber-50' : isMe ? 'bg-brand-red/5' : ''
                 }`}
               >
-                <span className="text-2xl w-8 text-center">
-                  {medals[i] ?? (
-                    <span className="font-display font-bold text-gray-400">{i + 1}</span>
-                  )}
+                <span className={`font-display font-bold text-xl w-8 text-center ${rankColors[i] ?? 'text-gray-400'}`}>
+                  {i + 1}
                 </span>
                 <span
                   className={`font-body font-bold flex-1 text-lg ${

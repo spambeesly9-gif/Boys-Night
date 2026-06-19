@@ -53,7 +53,6 @@ export default function HPResult({
 
           return (
             <div className={`rounded-3xl border-2 p-8 mb-6 text-center ${caught ? 'bg-green-50 border-green-300' : 'bg-red-50 border-brand-red/40'}`}>
-              <div className="text-5xl mb-3">{caught ? '🚨' : '🕶️'}</div>
               <h1 className={`font-display text-6xl font-black italic mb-2 ${caught ? 'text-green-700' : 'text-brand-red'}`}>
                 {caught ? 'CAUGHT!' : 'ESCAPED!'}
               </h1>

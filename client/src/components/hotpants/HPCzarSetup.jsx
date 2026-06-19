@@ -62,7 +62,6 @@ export default function HPCzarSetup({ czarId, czarName, round, myId, players, is
                         : 'bg-cream text-gray-700 border-2 border-transparent hover:border-brand-red/40'
                     }`}
                   >
-                    <span>{selectedImposter === p.id ? '🔥' : '👤'}</span>
                     <span>{p.name}</span>
                     {selectedImposter === p.id && (
                       <span className="ml-auto text-xs font-bold">IMPOSTER</span>
@@ -131,7 +130,6 @@ export default function HPCzarSetup({ czarId, czarName, round, myId, players, is
         <p className="font-body font-bold text-gray-500 text-xs uppercase tracking-widest mb-4">
           Round {round}
         </p>
-        <div className="text-6xl mb-6 animate-pulse">🎩</div>
         <h1 className="font-display text-4xl font-bold italic text-gray-900 mb-3">
           {czarName} is the Czar
         </h1>
