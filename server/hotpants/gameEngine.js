@@ -1,7 +1,16 @@
 const { generateRoomCode } = require('../quiplash/gameEngine');
+const autoPairs = require('./autoPairs.json');
 
 function generateToken() {
   return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+}
+
+function pickAutoPair(usedIndices) {
+  const available = autoPairs.map((_, i) => i).filter(i => !usedIndices.has(i));
+  if (available.length === 0) { usedIndices.clear(); return pickAutoPair(usedIndices); }
+  const idx = available[Math.floor(Math.random() * available.length)];
+  usedIndices.add(idx);
+  return autoPairs[idx];
 }
 
 const hpRooms = new Map();
@@ -92,13 +101,62 @@ function hpPublicState(room) {
 // ─── Game flow ───────────────────────────────────────────────────────────────
 
 function startHPGame(io, room, config = {}) {
-  const rounds = config.rounds ?? 3;
+  const rawRounds = config.rounds ?? 3;
+  const rounds = (String(rawRounds).toLowerCase() === 'endless') ? 'endless' : (Number(rawRounds) || 3);
   const answerTime = config.answerTime ?? 60;
   const voteTime = config.voteTime ?? 30;
-  room.config = { rounds, answerTime, voteTime };
+  const autoMode = !!config.autoMode;
+  room.config = { rounds, answerTime, voteTime, autoMode };
   room.round = 0;
   room.czarIndex = 0;
-  startCzarSetup(io, room);
+  room.usedPairIndices = new Set();
+  if (autoMode) {
+    startAutoRound(io, room);
+  } else {
+    startCzarSetup(io, room);
+  }
+}
+
+function startAutoRound(io, room) {
+  room.round += 1;
+  room.state = 'answering';
+
+  const connectedPlayers = room.players.filter(p => p.isConnected);
+  const pair = pickAutoPair(room.usedPairIndices);
+
+  // Pick random imposter (not the same person two rounds in a row if possible)
+  const lastImposterId = room.currentRound?.imposterId;
+  const eligible = connectedPlayers.filter(p => p.id !== lastImposterId);
+  const pool = eligible.length > 0 ? eligible : connectedPlayers;
+  const imposter = pool[Math.floor(Math.random() * pool.length)];
+
+  room.currentRound = {
+    czarId: null,
+    imposterId: imposter.id,
+    mainQuestion: pair.main,
+    imposterQuestion: pair.trap,
+    answers: {},
+    votes: {},
+  };
+
+  const ANSWER_DURATION = room.config.answerTime ?? 60;
+
+  io.to(room.roomCode).emit('hp_game_state', hpPublicState(room));
+  io.to(room.roomCode).emit('hp_auto_round_start', {
+    round: room.round,
+    duration: ANSWER_DURATION,
+  });
+
+  for (const p of connectedPlayers) {
+    if (p.id === imposter.id) {
+      io.to(p.id).emit('hp_your_question', { question: pair.trap, isImposter: true });
+    } else {
+      io.to(p.id).emit('hp_your_question', { question: pair.main, isImposter: false });
+    }
+  }
+
+  clearTimeout(room.timers.answer);
+  if (ANSWER_DURATION > 0) room.timers.answer = setTimeout(() => startReveal(io, room), ANSWER_DURATION * 1000);
 }
 
 function startCzarSetup(io, room) {
@@ -365,15 +423,16 @@ function nextHPRound(io, room, requesterId) {
   if (requesterId !== room.hostId) return;
   if (room.state !== 'result') return;
 
-  const connectedPlayers = room.players.filter(p => p.isConnected);
-  room.czarIndex = (room.czarIndex + 1) % connectedPlayers.length;
-
   const isEndless = room.config.rounds === 'endless';
   const isLastRound = !isEndless && room.round >= room.config.rounds;
 
   if (isLastRound) {
     endHPGame(io, room);
+  } else if (room.config.autoMode) {
+    startAutoRound(io, room);
   } else {
+    const connectedPlayers = room.players.filter(p => p.isConnected);
+    room.czarIndex = (room.czarIndex + 1) % connectedPlayers.length;
     startCzarSetup(io, room);
   }
 }
@@ -409,7 +468,8 @@ function handleHPDisconnect(io, room, playerId) {
   if (room.state === 'voting') {
     // Re-check if all remaining connected players voted
     const eligible = room.players.filter(p => p.isConnected && p.id !== room.currentRound?.czarId);
-    if (eligible.length > 0 && eligible.every(p => room.currentRound.votes[p.id])) {
+    const allVoted = eligible.length === 0 || eligible.every(p => room.currentRound.votes[p.id]);
+    if (allVoted) {
       clearTimeout(room.timers.vote);
       resolveVotes(io, room);
       return;

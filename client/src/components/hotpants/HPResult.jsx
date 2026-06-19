@@ -8,6 +8,7 @@ export default function HPResult({
   mainQuestion,
   caught,
   tally,
+  votes,
   scoreDelta,
   czarId,
   czarName,
@@ -23,7 +24,7 @@ export default function HPResult({
     if (caught) playYay();
   }, [caught]);
 
-  const isEndless = config?.rounds === 'endless';
+  const isEndless = String(config?.rounds).toLowerCase() === 'endless';
   const isFinalRound = !isEndless && round >= config?.rounds;
 
   // Sort players by tally for vote breakdown

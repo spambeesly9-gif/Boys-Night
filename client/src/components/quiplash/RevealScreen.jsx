@@ -76,6 +76,11 @@ export default function RevealScreen({ promptText, promptImage, answers, isQuipl
                         <span className="bg-brand-red text-cream text-xs font-body font-bold px-2 py-0.5 rounded-full">QUIPLASH!</span>
                       )}
                     </div>
+                    {answer.voters && answer.voters.length > 0 && (
+                      <p className="text-xs font-body text-gray-400 mt-1.5">
+                        Voted by: {answer.voters.join(', ')}
+                      </p>
+                    )}
                   </div>
                   <div className="text-right">
                     <span className={`font-display font-bold text-2xl italic ${answer.points > 0 ? 'text-green-700' : 'text-gray-300'} ${isMe && answer.points > 0 ? 'score-pop' : ''}`}>

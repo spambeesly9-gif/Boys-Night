@@ -6,7 +6,7 @@ export default function VotingPhase({ promptId, promptText, promptImage, assigne
   const [voted, setVoted] = useState(null);
 
   const canVote = isAllPlay || !assignedPlayerIds.includes(myId);
-  const totalVotes = Object.values(voteTally).reduce((s, n) => s + n, 0);
+  const votedCount = Object.values(voteTally).reduce((s, n) => s + n, 0);
   const roundLabel = `Round ${round}`;
 
   const handleVote = (forPlayerId) => {
@@ -53,10 +53,8 @@ export default function VotingPhase({ promptId, promptText, promptImage, assigne
         <div className="max-w-2xl mx-auto w-full space-y-4">
           {answers.map((answer, i) => {
             const label = String.fromCharCode(65 + i);
-            const voteCount = voteTally[answer.playerId] ?? 0;
             const isMyVote = voted === answer.playerId;
             const isMyAnswer = isAllPlay && answer.playerId === myId;
-            const votePct = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
 
             return (
               <button
@@ -82,21 +80,12 @@ export default function VotingPhase({ promptId, promptText, promptImage, assigne
                     {answer.text}
                   </p>
                 </div>
-
-                {totalVotes > 0 && (
-                  <div className="mt-4">
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-brand-red rounded-full transition-all duration-500" style={{ width: `${votePct}%` }} />
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">{voteCount} vote{voteCount !== 1 ? 's' : ''}</p>
-                  </div>
-                )}
               </button>
             );
           })}
         </div>
 
-        <div className="max-w-2xl mx-auto w-full mt-6 text-center">
+        <div className="max-w-2xl mx-auto w-full mt-6 text-center space-y-2">
           {!canVote ? (
             <p className="font-body font-bold text-gray-400">You wrote one of these. Hands to yourself.</p>
           ) : voted ? (
@@ -105,6 +94,9 @@ export default function VotingPhase({ promptId, promptText, promptImage, assigne
             <p className="font-body font-bold text-gray-400">Vote for anyone — except yourself.</p>
           ) : (
             <p className="font-body font-bold text-gray-400">Tap the one that made you actually laugh.</p>
+          )}
+          {votedCount > 0 && (
+            <p className="font-body text-xs text-gray-400">{votedCount} vote{votedCount !== 1 ? 's' : ''} in</p>
           )}
         </div>
       </div>

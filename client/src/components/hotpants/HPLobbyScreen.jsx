@@ -12,10 +12,11 @@ export default function HPLobbyScreen({ roomCode, players, isHost, onStart, myId
   const [rounds, setRounds] = useState(3);
   const [answerTime, setAnswerTime] = useState(60);
   const [voteTime, setVoteTime] = useState(30);
+  const [autoMode, setAutoMode] = useState(false);
 
   const handleStart = () => {
     playTap();
-    onStart({ rounds: rounds === 'Endless' ? 'endless' : rounds, answerTime, voteTime });
+    onStart({ rounds: rounds === 'Endless' ? 'endless' : rounds, answerTime, voteTime, autoMode });
   };
 
   return (
@@ -60,6 +61,23 @@ export default function HPLobbyScreen({ roomCode, players, isHost, onStart, myId
         {isHost && (
           <div className="bg-cream-dark rounded-2xl border-2 border-brand-red/20 p-5 mb-5">
             <p className="font-body font-bold text-gray-700 text-sm mb-3">Game Settings</p>
+
+            {/* Auto mode toggle */}
+            <div className="mb-4 p-3 bg-cream rounded-xl border border-gray-200">
+              <div className="flex items-center justify-between mb-1">
+                <div>
+                  <p className="font-body font-bold text-gray-800 text-sm">No Game Daddy</p>
+                  <p className="font-body text-xs text-gray-500">Questions auto-generated, imposter picked randomly</p>
+                </div>
+                <button
+                  onClick={() => { playTap(); setAutoMode(m => !m); }}
+                  className={`relative w-11 h-6 rounded-full transition-colors ${autoMode ? 'bg-brand-red' : 'bg-gray-300'}`}
+                >
+                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${autoMode ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+            </div>
+
             {[
               { label: 'Rounds', options: ROUND_OPTIONS, value: rounds, set: setRounds, fmt: v => `${v}` },
               { label: 'Answer time', options: ANSWER_TIME_OPTIONS, value: answerTime, set: setAnswerTime, fmt: v => v === 0 ? 'None' : `${v}s` },

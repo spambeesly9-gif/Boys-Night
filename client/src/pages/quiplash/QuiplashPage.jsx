@@ -32,15 +32,17 @@ export default function QuiplashPage() {
   useEffect(() => {
     socket.connect();
 
-    socket.on('room_joined', ({ roomCode: code, playerId, isHost: host, reconnectToken }) => {
+    socket.on('room_joined', ({ roomCode: code, playerId, isHost: host, reconnectToken, midGame }) => {
       if (reconnectToken) sessionStorage.setItem('ql_session', JSON.stringify({ roomCode: code, reconnectToken }));
       setRoomCode(code);
       roomCodeRef.current = code;
       setMyId(playerId);
       setIsHost(host);
-      setScreen('lobby');
       setError('');
-      startLobbyMusic();
+      if (!midGame) {
+        setScreen('lobby');
+        startLobbyMusic();
+      }
     });
 
     socket.on('reconnect_failed', () => {
@@ -92,17 +94,21 @@ export default function QuiplashPage() {
 
     socket.on('game_over', (data) => setWinnerData(data));
 
-    // Auto-reconnect if we have a saved session
-    const saved = sessionStorage.getItem('ql_session');
-    if (saved) {
-      try {
-        const { roomCode: savedCode, reconnectToken } = JSON.parse(saved);
-        socket.emit('reconnect_room', { roomCode: savedCode, reconnectToken });
-      } catch { sessionStorage.removeItem('ql_session'); }
-    }
+    // Auto-reconnect on initial connect AND on socket.io auto-reconnect (e.g. mobile tab resume)
+    const tryReconnect = () => {
+      const saved = sessionStorage.getItem('ql_session');
+      if (saved) {
+        try {
+          const { roomCode: savedCode, reconnectToken } = JSON.parse(saved);
+          socket.emit('reconnect_room', { roomCode: savedCode, reconnectToken });
+        } catch { sessionStorage.removeItem('ql_session'); }
+      }
+    };
+    socket.on('connect', tryReconnect);
 
     return () => {
       socket.off('room_joined'); socket.off('reconnect_failed'); socket.off('join_error'); socket.off('game_state');
+      socket.off('connect', tryReconnect);
       socket.off('answer_phase_start'); socket.off('your_prompts'); socket.off('answer_status');
       socket.off('voting_start'); socket.off('vote_tally'); socket.off('reveal');
       socket.off('score_delta'); socket.off('scoreboard'); socket.off('game_over');
@@ -160,6 +166,7 @@ export default function QuiplashPage() {
       return (
         <AnswerPhase
           round={answerPhaseData?.round ?? gameState?.round}
+          totalRounds={gameState?.totalRounds}
           duration={answerPhaseData?.duration ?? 90}
           myPrompts={myPrompts}
           answerStatus={answerStatus}

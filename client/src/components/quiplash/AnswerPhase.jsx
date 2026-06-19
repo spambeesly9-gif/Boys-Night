@@ -11,7 +11,7 @@ const PLAYER_COLORS = [
   'bg-orange-100 text-orange-700 border-orange-200',
 ];
 
-export default function AnswerPhase({ round, duration, myPrompts, answerStatus, players, myId, onSubmitAnswer }) {
+export default function AnswerPhase({ round, totalRounds, duration, myPrompts, answerStatus, players, myId, onSubmitAnswer }) {
   const [submitted, setSubmitted] = useState({});
   const [drafts, setDrafts] = useState({});
 
@@ -24,7 +24,8 @@ export default function AnswerPhase({ round, duration, myPrompts, answerStatus, 
 
   const answeredCount = Object.values(answerStatus).filter(Boolean).length;
   const totalPlayers = players.filter(p => p.isConnected).length;
-  const roundLabel = round === 3 ? 'Final Round' : `Round ${round}`;
+  const isFinal = totalRounds && round === totalRounds;
+  const roundLabel = isFinal ? 'Final Round' : `Round ${round}`;
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">

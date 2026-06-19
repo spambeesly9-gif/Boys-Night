@@ -8,6 +8,7 @@ import HPReveal from '../../components/hotpants/HPReveal';
 import HPVoting from '../../components/hotpants/HPVoting';
 import HPResult from '../../components/hotpants/HPResult';
 import HPWinnerScreen from '../../components/hotpants/HPWinnerScreen';
+import InGameMenu from '../../components/quiplash/InGameMenu';
 
 export default function HotPantsPage() {
   const [screen, setScreen] = useState('join');
@@ -34,14 +35,14 @@ export default function HotPantsPage() {
   useEffect(() => {
     socket.connect();
 
-    socket.on('hp_room_joined', ({ roomCode: code, playerId, isHost: host, reconnectToken }) => {
+    socket.on('hp_room_joined', ({ roomCode: code, playerId, isHost: host, reconnectToken, midGame }) => {
       if (reconnectToken) sessionStorage.setItem('hp_session', JSON.stringify({ roomCode: code, reconnectToken }));
       setRoomCode(code);
       roomCodeRef.current = code;
       setMyId(playerId);
       setIsHost(host);
-      setScreen('lobby');
       setError('');
+      if (!midGame) setScreen('lobby');
     });
 
     socket.on('hp_reconnect_failed', () => {
@@ -75,6 +76,19 @@ export default function HotPantsPage() {
       setCzarSetupData(null);
     });
 
+    socket.on('hp_auto_round_start', (data) => {
+      setAnswerPhaseData(data);
+      setCzarSetupData(null);
+      setRevealData(null);
+      setVotingData(null);
+      setResultData(null);
+      setMyQuestion('');
+      setIsImposter(false);
+      setAnswerStatus({});
+      setVoteTally({});
+      setScreen('game');
+    });
+
     socket.on('hp_answer_status', (status) => setAnswerStatus(status));
 
     socket.on('hp_reveal', (data) => {
@@ -100,16 +114,20 @@ export default function HotPantsPage() {
       setResultData(null);
     });
 
-    // Auto-reconnect if we have a saved session
-    const saved = sessionStorage.getItem('hp_session');
-    if (saved) {
-      try {
-        const { roomCode: savedCode, reconnectToken } = JSON.parse(saved);
-        socket.emit('hp_reconnect_room', { roomCode: savedCode, reconnectToken });
-      } catch { sessionStorage.removeItem('hp_session'); }
-    }
+    // Auto-reconnect on initial connect AND on socket.io auto-reconnect (e.g. mobile tab resume)
+    const tryReconnect = () => {
+      const saved = sessionStorage.getItem('hp_session');
+      if (saved) {
+        try {
+          const { roomCode: savedCode, reconnectToken } = JSON.parse(saved);
+          socket.emit('hp_reconnect_room', { roomCode: savedCode, reconnectToken });
+        } catch { sessionStorage.removeItem('hp_session'); }
+      }
+    };
+    socket.on('connect', tryReconnect);
 
     return () => {
+      socket.off('connect', tryReconnect);
       socket.off('hp_room_joined');
       socket.off('hp_reconnect_failed');
       socket.off('hp_join_error');
@@ -117,6 +135,7 @@ export default function HotPantsPage() {
       socket.off('hp_czar_setup_start');
       socket.off('hp_your_question');
       socket.off('hp_answer_phase');
+      socket.off('hp_auto_round_start');
       socket.off('hp_answer_status');
       socket.off('hp_reveal');
       socket.off('hp_voting_start');
@@ -254,5 +273,12 @@ export default function HotPantsPage() {
     );
   };
 
-  return <div>{renderPhase()}</div>;
+  return (
+    <div className="relative">
+      {renderPhase()}
+      {screen === 'game' && !winnerData && (
+        <InGameMenu isHost={isHost} onEndGame={endGame} />
+      )}
+    </div>
+  );
 }

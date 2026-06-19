@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
     socketRoom[socket.id] = room.roomCode;
     socket.join(room.roomCode);
     const hostToken = room.players[0].reconnectToken;
-    socket.emit('room_joined', { roomCode: room.roomCode, playerId: socket.id, isHost: true, reconnectToken: hostToken });
+    socket.emit('room_joined', { roomCode: room.roomCode, playerId: socket.id, isHost: true, reconnectToken: hostToken, midGame: false });
     io.to(room.roomCode).emit('game_state', publicState(room));
   });
 
@@ -59,7 +59,7 @@ io.on('connection', (socket) => {
     socketRoom[socket.id] = code;
     socket.join(code);
     const playerToken = room.players.find(p => p.id === socket.id).reconnectToken;
-    socket.emit('room_joined', { roomCode: code, playerId: socket.id, isHost: false, reconnectToken: playerToken });
+    socket.emit('room_joined', { roomCode: code, playerId: socket.id, isHost: false, reconnectToken: playerToken, midGame });
     io.to(code).emit('game_state', publicState(room));
     if (midGame) syncNewPlayer(io, room, socket.id);
   });
@@ -107,7 +107,7 @@ io.on('connection', (socket) => {
     socketHPRoom[socket.id] = room.roomCode;
     socket.join(room.roomCode);
     const hpHostToken = room.players[0].reconnectToken;
-    socket.emit('hp_room_joined', { roomCode: room.roomCode, playerId: socket.id, isHost: true, reconnectToken: hpHostToken });
+    socket.emit('hp_room_joined', { roomCode: room.roomCode, playerId: socket.id, isHost: true, reconnectToken: hpHostToken, midGame: false });
     io.to(room.roomCode).emit('hp_game_state', hpPublicState(room));
   });
 
@@ -123,7 +123,7 @@ io.on('connection', (socket) => {
     socketHPRoom[socket.id] = code;
     socket.join(code);
     const hpPlayerToken = room.players.find(p => p.id === socket.id).reconnectToken;
-    socket.emit('hp_room_joined', { roomCode: code, playerId: socket.id, isHost: false, reconnectToken: hpPlayerToken });
+    socket.emit('hp_room_joined', { roomCode: code, playerId: socket.id, isHost: false, reconnectToken: hpPlayerToken, midGame: room.state !== 'lobby' });
     io.to(code).emit('hp_game_state', hpPublicState(room));
   });
 
@@ -191,7 +191,7 @@ io.on('connection', (socket) => {
 
     socketRoom[socket.id] = code;
     socket.join(code);
-    socket.emit('room_joined', { roomCode: code, playerId: socket.id, isHost: player.isHost, reconnectToken: player.reconnectToken });
+    socket.emit('room_joined', { roomCode: code, playerId: socket.id, isHost: player.isHost, reconnectToken: player.reconnectToken, midGame: room.state !== 'lobby' });
     io.to(code).emit('game_state', publicState(room));
     syncReconnectedPlayer(io, room, socket.id);
   });
@@ -205,7 +205,7 @@ io.on('connection', (socket) => {
 
     socketHPRoom[socket.id] = code;
     socket.join(code);
-    socket.emit('hp_room_joined', { roomCode: code, playerId: socket.id, isHost: room.hostId === socket.id, reconnectToken: player.reconnectToken });
+    socket.emit('hp_room_joined', { roomCode: code, playerId: socket.id, isHost: room.hostId === socket.id, reconnectToken: player.reconnectToken, midGame: room.state !== 'lobby' });
     io.to(code).emit('hp_game_state', hpPublicState(room));
   });
 

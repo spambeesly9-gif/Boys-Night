@@ -156,6 +156,9 @@ function tallyReveal(prompt, players, round, totalRounds) {
       playerName: players.find(p => p.id === a.playerId)?.name ?? '???',
       text: a.text,
       isSafetyQuip: a.isSafetyQuip ?? false,
+      voters: prompt.votes
+        .filter(v => v.forPlayerId === a.playerId)
+        .map(v => players.find(p => p.id === v.voterId)?.name ?? '???'),
       ...pointsAwarded[a.playerId],
     })),
     isQuiplash: anyQuiplash,

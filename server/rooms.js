@@ -80,7 +80,7 @@ function syncReconnectedPlayer(io, room, playerId) {
     const answerStatus = {};
     for (const p of room.roundPrompts) {
       for (const pid of p.assignedPlayerIds) {
-        if (!answerStatus[pid]) answerStatus[pid] = true;
+        if (answerStatus[pid] === undefined) answerStatus[pid] = true;
         if (!p.answers.find(a => a.playerId === pid)) answerStatus[pid] = false;
       }
     }
@@ -121,7 +121,8 @@ function handleDisconnect(io, room, playerId) {
         if (isAllPlay) return true;
         return !prompt.assignedPlayerIds.includes(p.id);
       });
-      if (eligibleVoters.length > 0 && eligibleVoters.every(p => prompt.votes.find(v => v.voterId === p.id))) {
+      const allVoted = eligibleVoters.every(p => prompt.votes.find(v => v.voterId === p.id));
+      if (eligibleVoters.length === 0 || allVoted) {
         clearTimeout(room.timers.vote); revealCurrentPrompt(io, room); return;
       }
     }
@@ -229,7 +230,7 @@ function submitAnswer(io, room, playerId, promptId, text) {
   const answerStatus = {};
   for (const p of room.roundPrompts) {
     for (const pid of p.assignedPlayerIds) {
-      if (!answerStatus[pid]) answerStatus[pid] = true;
+      if (answerStatus[pid] === undefined) answerStatus[pid] = true;
       if (!p.answers.find(a => a.playerId === pid)) answerStatus[pid] = false;
     }
   }
@@ -303,7 +304,8 @@ function castVote(io, room, voterId, promptId, forPlayerId) {
     if (isAllPlay) return true;
     return !prompt.assignedPlayerIds.includes(p.id);
   });
-  if (eligibleVoters.length > 0 && eligibleVoters.every(p => prompt.votes.find(v => v.voterId === p.id))) {
+  const allVotedNow = eligibleVoters.length === 0 || eligibleVoters.every(p => prompt.votes.find(v => v.voterId === p.id));
+  if (allVotedNow) {
     clearTimeout(room.timers.vote);
     revealCurrentPrompt(io, room);
   }
