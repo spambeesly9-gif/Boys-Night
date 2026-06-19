@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { playTap } from '../../utils/sounds';
 
 const ROUND_OPTIONS = [1, 2, 3, 4, 5, 'Endless'];
-const ANSWER_TIME_OPTIONS = [30, 60, 90];
-const VOTE_TIME_OPTIONS = [15, 30, 45];
+const ANSWER_TIME_OPTIONS = [30, 60, 90, 0];
+const VOTE_TIME_OPTIONS = [15, 30, 45, 0];
 
 export default function LobbyScreen({ roomCode, players, isHost, onStart, myId }) {
   const connected = players.filter(p => p.isConnected);
@@ -64,8 +64,8 @@ export default function LobbyScreen({ roomCode, players, isHost, onStart, myId }
             {showConfig && (
               <div className="mt-4 space-y-4">
                 <ConfigRow label="Rounds" options={ROUND_OPTIONS} value={rounds} onChange={(v) => { playTap(); setRounds(v); }} format={v => `${v}`} />
-                <ConfigRow label="Answer time" options={ANSWER_TIME_OPTIONS} value={answerTime} onChange={(v) => { playTap(); setAnswerTime(v); }} format={v => `${v}s`} />
-                <ConfigRow label="Vote time" options={VOTE_TIME_OPTIONS} value={voteTime} onChange={(v) => { playTap(); setVoteTime(v); }} format={v => `${v}s`} />
+                <ConfigRow label="Answer time" options={ANSWER_TIME_OPTIONS} value={answerTime} onChange={(v) => { playTap(); setAnswerTime(v); }} format={v => v === 0 ? 'None' : `${v}s`} />
+                <ConfigRow label="Vote time" options={VOTE_TIME_OPTIONS} value={voteTime} onChange={(v) => { playTap(); setVoteTime(v); }} format={v => v === 0 ? 'None' : `${v}s`} />
               </div>
             )}
           </div>

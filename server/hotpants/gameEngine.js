@@ -62,7 +62,9 @@ function hpPublicState(room) {
 
 function startHPGame(io, room, config = {}) {
   const rounds = config.rounds ?? 3;
-  room.config = { rounds };
+  const answerTime = config.answerTime ?? 60;
+  const voteTime = config.voteTime ?? 30;
+  room.config = { rounds, answerTime, voteTime };
   room.round = 0;
   room.czarIndex = 0;
   startCzarSetup(io, room);
@@ -124,7 +126,7 @@ function czarSubmit(io, room, czarSocketId, { imposterId, mainQuestion, imposter
 
 function startAnswerPhase(io, room) {
   room.state = 'answering';
-  const ANSWER_DURATION = 60;
+  const ANSWER_DURATION = room.config.answerTime ?? 60;
 
   io.to(room.roomCode).emit('hp_game_state', hpPublicState(room));
   io.to(room.roomCode).emit('hp_answer_phase', {
@@ -148,7 +150,7 @@ function startAnswerPhase(io, room) {
   }
 
   clearTimeout(room.timers.answer);
-  room.timers.answer = setTimeout(() => startReveal(io, room), ANSWER_DURATION * 1000);
+  if (ANSWER_DURATION > 0) room.timers.answer = setTimeout(() => startReveal(io, room), ANSWER_DURATION * 1000);
 }
 
 function submitHPAnswer(io, room, playerId, answerText) {
@@ -210,7 +212,7 @@ function startHPVoting(io, room, czarSocketId) {
   if (room.state !== 'reveal') return { error: 'Not in reveal phase.' };
   if (room.currentRound.czarId !== czarSocketId) return { error: 'Only the Czar can start voting.' };
 
-  const VOTE_DURATION = 30;
+  const VOTE_DURATION = room.config.voteTime ?? 30;
   room.state = 'voting';
 
   const { answers, mainQuestion, czarId } = room.currentRound;
@@ -229,7 +231,7 @@ function startHPVoting(io, room, czarSocketId) {
   });
 
   clearTimeout(room.timers.vote);
-  room.timers.vote = setTimeout(() => resolveVotes(io, room), VOTE_DURATION * 1000);
+  if (VOTE_DURATION > 0) room.timers.vote = setTimeout(() => resolveVotes(io, room), VOTE_DURATION * 1000);
 
   return { ok: true };
 }

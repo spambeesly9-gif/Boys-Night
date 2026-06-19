@@ -2,16 +2,20 @@ import { useState } from 'react';
 import { playTap } from '../../utils/sounds';
 
 const ROUND_OPTIONS = [1, 2, 3, 5, 'Endless'];
+const ANSWER_TIME_OPTIONS = [30, 60, 90, 0];
+const VOTE_TIME_OPTIONS = [15, 30, 45, 0];
 
 export default function HPLobbyScreen({ roomCode, players, isHost, onStart, myId }) {
   const connected = players.filter(p => p.isConnected);
   const canStart = isHost && connected.length >= 3;
 
   const [rounds, setRounds] = useState(3);
+  const [answerTime, setAnswerTime] = useState(60);
+  const [voteTime, setVoteTime] = useState(30);
 
   const handleStart = () => {
     playTap();
-    onStart({ rounds: rounds === 'Endless' ? 'endless' : rounds });
+    onStart({ rounds: rounds === 'Endless' ? 'endless' : rounds, answerTime, voteTime });
   };
 
   return (
@@ -56,24 +60,30 @@ export default function HPLobbyScreen({ roomCode, players, isHost, onStart, myId
         {isHost && (
           <div className="bg-cream-dark rounded-2xl border-2 border-brand-red/20 p-5 mb-5">
             <p className="font-body font-bold text-gray-700 text-sm mb-3">Game Settings</p>
-            <div>
-              <p className="font-body font-bold text-gray-600 text-xs mb-2 uppercase tracking-widest">Rounds</p>
-              <div className="flex gap-2">
-                {ROUND_OPTIONS.map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => { playTap(); setRounds(opt); }}
-                    className={`flex-1 py-2 rounded-lg text-sm font-body font-bold transition-all ${
-                      rounds === opt
-                        ? 'bg-brand-red text-cream'
-                        : 'bg-cream text-gray-600 border border-gray-300 hover:border-brand-red'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
+            {[
+              { label: 'Rounds', options: ROUND_OPTIONS, value: rounds, set: setRounds, fmt: v => `${v}` },
+              { label: 'Answer time', options: ANSWER_TIME_OPTIONS, value: answerTime, set: setAnswerTime, fmt: v => v === 0 ? 'None' : `${v}s` },
+              { label: 'Vote time', options: VOTE_TIME_OPTIONS, value: voteTime, set: setVoteTime, fmt: v => v === 0 ? 'None' : `${v}s` },
+            ].map(({ label, options, value, set, fmt }) => (
+              <div key={label}>
+                <p className="font-body font-bold text-gray-600 text-xs mb-2 uppercase tracking-widest">{label}</p>
+                <div className="flex gap-2">
+                  {options.map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => { playTap(); set(opt); }}
+                      className={`flex-1 py-2 rounded-lg text-sm font-body font-bold transition-all ${
+                        value === opt
+                          ? 'bg-brand-red text-cream'
+                          : 'bg-cream text-gray-600 border border-gray-300 hover:border-brand-red'
+                      }`}
+                    >
+                      {fmt(opt)}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         )}
 

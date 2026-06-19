@@ -94,7 +94,7 @@ function startAnswerPhase(io, room) {
   }
 
   clearTimeout(room.timers.answer);
-  room.timers.answer = setTimeout(() => advanceToVoting(io, room), room.answerTime * 1000);
+  if (room.answerTime > 0) room.timers.answer = setTimeout(() => advanceToVoting(io, room), room.answerTime * 1000);
 }
 
 function submitAnswer(io, room, playerId, promptId, text) {
@@ -148,7 +148,7 @@ function emitCurrentVote(io, room) {
   });
 
   clearTimeout(room.timers.vote);
-  room.timers.vote = setTimeout(() => revealCurrentPrompt(io, room), room.voteTime * 1000);
+  if (room.voteTime > 0) room.timers.vote = setTimeout(() => revealCurrentPrompt(io, room), room.voteTime * 1000);
 }
 
 function castVote(io, room, voterId, promptId, forPlayerId) {
