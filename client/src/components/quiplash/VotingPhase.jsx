@@ -2,7 +2,7 @@ import { useState } from 'react';
 import CountdownTimer from './CountdownTimer';
 import { playTap } from '../../utils/sounds';
 
-export default function VotingPhase({ promptId, promptText, assignedPlayerIds, answers, promptIndex, totalPrompts, duration, round, myId, voteTally, onVote }) {
+export default function VotingPhase({ promptId, promptText, promptImage, assignedPlayerIds, answers, promptIndex, totalPrompts, duration, round, myId, voteTally, onVote }) {
   const [voted, setVoted] = useState(null);
 
   const canVote = !assignedPlayerIds.includes(myId);
@@ -32,15 +32,23 @@ export default function VotingPhase({ promptId, promptText, assignedPlayerIds, a
         </div>
       </div>
 
-      <div className="bg-cream border-b-2 border-brand-red/10 px-6 py-6">
-        <div className="max-w-2xl mx-auto text-center">
-          <p className="font-body font-bold text-gray-900 text-2xl leading-snug">
-            {promptText}
-          </p>
+      {promptImage ? (
+        <div className="bg-gray-950">
+          <div className="max-w-2xl mx-auto">
+            <img src={promptImage} alt="Comic prompt" className="w-full block" />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="bg-cream border-b-2 border-brand-red/10 px-6 py-6">
+          <div className="max-w-2xl mx-auto text-center">
+            <p className="font-body font-bold text-gray-900 text-2xl leading-snug">
+              {promptText}
+            </p>
+          </div>
+        </div>
+      )}
 
-      <div className="flex-1 flex flex-col justify-center px-4 py-8">
+      <div className="flex-1 flex flex-col justify-center px-4 py-6">
         <div className="max-w-2xl mx-auto w-full space-y-4">
           {answers.map((answer, i) => {
             const label = i === 0 ? 'A' : 'B';

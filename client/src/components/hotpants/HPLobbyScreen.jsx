@@ -45,7 +45,7 @@ export default function HPLobbyScreen({ roomCode, players, isHost, onStart, myId
                 } ${!p.isConnected ? 'opacity-40' : ''}`}
               >
                 <span className="flex-1">{p.name}</span>
-                {p.id === players[0]?.id && <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">host</span>}
+                {p.id === players[0]?.id && <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Game Daddy</span>}
                 {p.id === myId && <span className="text-xs font-bold text-brand-red">you</span>}
               </div>
             ))}
@@ -87,7 +87,7 @@ export default function HPLobbyScreen({ roomCode, players, isHost, onStart, myId
           </button>
         ) : (
           <div className="text-center font-body font-semibold text-gray-500 text-base py-4">
-            Waiting for the host to grow a pair…
+            Waiting for the Game Daddy to grow a pair…
           </div>
         )}
       </div>

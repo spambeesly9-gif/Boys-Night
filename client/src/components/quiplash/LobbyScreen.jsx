@@ -43,7 +43,7 @@ export default function LobbyScreen({ roomCode, players, isHost, onStart, myId }
             {players.map((p) => (
               <div key={p.id} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-body font-semibold ${p.id === myId ? 'bg-brand-red/10 text-brand-red border border-brand-red/20' : 'bg-cream text-gray-700'} ${!p.isConnected ? 'opacity-40' : ''}`}>
                 <span className="flex-1">{p.name}</span>
-                {p.isHost && <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">host</span>}
+                {p.isHost && <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Game Daddy</span>}
                 {p.id === myId && <span className="text-xs font-bold text-brand-red">you</span>}
               </div>
             ))}
@@ -81,7 +81,7 @@ export default function LobbyScreen({ roomCode, players, isHost, onStart, myId }
           </button>
         ) : (
           <div className="text-center font-body font-semibold text-gray-500 text-base py-4">
-            Waiting for the host to grow a pair…
+            Waiting for the Game Daddy to grow a pair…
           </div>
         )}
       </div>

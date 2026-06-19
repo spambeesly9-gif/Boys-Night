@@ -37,7 +37,7 @@ export default function HPCzarSetup({ czarId, czarName, round, myId, players, is
               Round {round}
             </p>
             <h1 className="font-display text-4xl font-bold italic text-brand-red mb-2">
-              You're the Czar
+              You're the Game Daddy
             </h1>
             <p className="font-body text-gray-600 text-sm">
               Pick one player to be the imposter, then write their trap.
@@ -131,7 +131,7 @@ export default function HPCzarSetup({ czarId, czarName, round, myId, players, is
           Round {round}
         </p>
         <h1 className="font-display text-4xl font-bold italic text-gray-900 mb-3">
-          {czarName} is the Czar
+          {czarName} is the Game Daddy
         </h1>
         <p className="font-body text-gray-600 text-base mb-8">
           They're setting up the round… Someone in this room is about to get absolutely cooked.

@@ -27,7 +27,7 @@ export default function HPVoting({ answers, mainQuestion, round, duration, czarI
               The votes are in
             </h1>
             <p className="font-body text-gray-600 text-sm">
-              You're watching, Czar. No peeking at who you know is the imposter.
+              You're watching, Game Daddy. No peeking at who you know is the imposter.
             </p>
           </div>
 

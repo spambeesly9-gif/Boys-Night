@@ -84,38 +84,52 @@ export default function AnswerPhase({ round, duration, myPrompts, answerStatus, 
 }
 
 function PromptCard({ prompt, draft, isSubmitted, onChange, onSubmit }) {
-  return (
-    <div className={`bg-cream-dark rounded-2xl border-2 p-6 transition-all ${isSubmitted ? 'border-green-400' : 'border-brand-red/20'}`}>
-      <p className="font-body font-bold text-gray-900 text-xl mb-5 leading-snug">
-        {prompt.promptText}
-      </p>
+  const isComic = !!prompt.promptImage;
 
-      {isSubmitted ? (
-        <div className="flex items-center gap-3">
-          <span className="font-body font-bold text-green-700">Locked in. Now pray.</span>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <textarea
-            value={draft}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="Type something your friends will regret voting for…"
-            maxLength={200}
-            rows={3}
-            className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 font-body font-semibold text-gray-800 placeholder-gray-300 resize-none focus:outline-none focus:border-brand-red transition-colors bg-cream"
-          />
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-body text-gray-400">{draft.length}/200</span>
-            <button
-              onClick={() => { playTap(); onSubmit(); }}
-              disabled={!draft.trim()}
-              className="bg-brand-red text-cream font-display font-bold italic px-6 py-2.5 rounded-xl transition-all hover:bg-red-900 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Lock it in →
-            </button>
-          </div>
-        </div>
+  return (
+    <div className={`bg-cream-dark rounded-2xl border-2 transition-all overflow-hidden ${isSubmitted ? 'border-green-400' : 'border-brand-red/20'}`}>
+      {isComic && (
+        <img src={prompt.promptImage} alt="Comic prompt" className="w-full block" />
       )}
+      <div className="p-6">
+        {!isComic && (
+          <p className="font-body font-bold text-gray-900 text-xl mb-5 leading-snug">
+            {prompt.promptText}
+          </p>
+        )}
+        {isComic && (
+          <p className="font-body font-bold text-gray-600 text-sm mb-4 uppercase tracking-widest">
+            What does the character reply?
+          </p>
+        )}
+
+        {isSubmitted ? (
+          <div className="flex items-center gap-3">
+            <span className="font-body font-bold text-green-700">Locked in. Now pray.</span>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <textarea
+              value={draft}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder={isComic ? 'Fill in the blank speech bubble…' : 'Type something your friends will regret voting for…'}
+              maxLength={200}
+              rows={3}
+              className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 font-body font-semibold text-gray-800 placeholder-gray-300 resize-none focus:outline-none focus:border-brand-red transition-colors bg-cream"
+            />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-body text-gray-400">{draft.length}/200</span>
+              <button
+                onClick={() => { playTap(); onSubmit(); }}
+                disabled={!draft.trim()}
+                className="bg-brand-red text-cream font-display font-bold italic px-6 py-2.5 rounded-xl transition-all hover:bg-red-900 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Lock it in →
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

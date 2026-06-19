@@ -38,7 +38,7 @@ export default function HPAnswerPhase({
               Round {round} — Answer Phase
             </p>
             <h1 className="font-display text-3xl font-bold italic text-gray-900 mb-2">
-              You're the Czar
+              You're the Game Daddy
             </h1>
             <p className="font-body text-gray-600 text-sm">
               Sit tight. Watch them squirm.

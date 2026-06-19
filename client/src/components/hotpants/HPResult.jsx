@@ -69,7 +69,7 @@ export default function HPResult({
         {/* Questions reveal */}
         <div className="bg-cream-dark rounded-2xl border-2 border-brand-red/20 p-5 mb-5">
           <p className="font-body font-bold text-gray-500 text-xs uppercase tracking-widest mb-3">
-            The Czar's Questions
+            The Game Daddy's Questions
           </p>
           <div className="space-y-3">
             <div className="bg-cream rounded-xl border border-brand-red/10 p-4">
@@ -185,7 +185,7 @@ export default function HPResult({
               <div className="w-2 h-2 bg-brand-red rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
             <p className="font-body font-semibold text-gray-500 text-sm">
-              Waiting for the host…
+              Waiting for the Game Daddy…
             </p>
           </div>
         )}

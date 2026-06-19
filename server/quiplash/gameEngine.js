@@ -1,4 +1,6 @@
 const allPrompts = require('./prompts/round1.json');
+const allComicPrompts = require('./prompts/round2.json');
+const allListingPrompts = require('./prompts/round3.json');
 
 const SAFETY_QUIPS = [
   'I plead the fifth.',
@@ -64,50 +66,56 @@ function buildPromptPairs(playerIds) {
       }
     }
 
-    if (!found) break; // no more valid pairs
+    if (!found) break;
   }
 
   return pairs;
 }
 
-function assignRound(playerIds, usedPromptIds, isRound3 = false) {
-  const pairs = isRound3 ? null : buildPromptPairs(playerIds);
-  const needed = isRound3 ? 3 : (pairs?.length ?? 1);
+// Round type by number (cycles every 3): 1=basic text, 2=comic, 3=listing
+// isFinalRound: all players same prompts, 2x score, uses basic text pool
+function assignRound(playerIds, usedPromptIds, isFinalRound = false, roundNumber = 1) {
+  const roundType = isFinalRound ? 'text' : (['text', 'comic', 'listing'][(roundNumber - 1) % 3]);
+  const promptPool = roundType === 'comic' ? allComicPrompts : roundType === 'listing' ? allListingPrompts : allPrompts;
+  const idPrefix = roundType === 'comic' ? 'c' : roundType === 'listing' ? 'l' : 't';
 
-  let available = allPrompts
-    .map((text, idx) => ({ id: String(idx), text }))
-    .filter(p => !usedPromptIds.has(p.id));
+  const pairs = isFinalRound ? null : buildPromptPairs(playerIds);
+  const needed = isFinalRound ? 3 : (pairs?.length ?? 1);
 
-  // Cycle the pool when we run low
+  const toEntry = (item, idx) => roundType === 'comic'
+    ? { id: `${idPrefix}${idx}`, text: '', image: item }
+    : { id: `${idPrefix}${idx}`, text: item, image: null };
+
+  let available = promptPool.map(toEntry).filter(p => !usedPromptIds.has(p.id));
+
   if (available.length < needed) {
-    usedPromptIds.clear();
-    available = allPrompts.map((text, idx) => ({ id: String(idx), text }));
+    // Only clear this pool's used IDs, leave the other pool untouched
+    for (const id of [...usedPromptIds]) {
+      if (id.startsWith(idPrefix)) usedPromptIds.delete(id);
+    }
+    available = promptPool.map(toEntry);
   }
 
   const shuffled = shuffle(available);
 
-  if (isRound3) {
+  const buildPrompt = (p, assignedIds) => ({
+    promptId: p.id,
+    promptText: p.text,
+    promptImage: p.image ? `/Comic/${p.image}` : null,
+    assignedPlayerIds: assignedIds,
+    answers: [],
+    votes: [],
+  });
+
+  if (isFinalRound) {
     const selected = shuffled.slice(0, 3);
     selected.forEach(p => usedPromptIds.add(p.id));
-    return selected.map(p => ({
-      promptId: p.id,
-      promptText: p.text,
-      assignedPlayerIds: [...playerIds],
-      answers: [],
-      votes: [],
-    }));
+    return selected.map(p => buildPrompt(p, [...playerIds]));
   }
 
   const selected = shuffled.slice(0, pairs.length);
   selected.forEach(p => usedPromptIds.add(p.id));
-
-  return selected.map((p, i) => ({
-    promptId: p.id,
-    promptText: p.text,
-    assignedPlayerIds: pairs[i],
-    answers: [],
-    votes: [],
-  }));
+  return selected.map((p, i) => buildPrompt(p, pairs[i]));
 }
 
 function fillMissingAnswers(prompt) {
@@ -142,6 +150,7 @@ function tallyReveal(prompt, players, round, totalRounds) {
 
   return {
     promptText: prompt.promptText,
+    promptImage: prompt.promptImage ?? null,
     answers: prompt.answers.map(a => ({
       playerId: a.playerId,
       playerName: players.find(p => p.id === a.playerId)?.name ?? '???',

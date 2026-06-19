@@ -128,7 +128,7 @@ export default function HPReveal({ answers, mainQuestion, round, czarId, myId, i
                   <div className="w-2 h-2 bg-hp-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
                 <p className="font-body font-semibold text-gray-500 text-sm">
-                  Waiting for the Czar to start voting…
+                  Waiting for the Game Daddy to start voting…
                 </p>
               </div>
             )}

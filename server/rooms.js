@@ -74,7 +74,8 @@ function startAnswerPhase(io, room) {
   room.roundPrompts = assignRound(
     room.players.filter(p => p.isConnected).map(p => p.id),
     room.usedPromptIds,
-    room.round === room.totalRounds
+    room.round === room.totalRounds,
+    room.round
   );
   room.currentVoteIndex = 0;
 
@@ -85,7 +86,7 @@ function startAnswerPhase(io, room) {
   for (const prompt of room.roundPrompts) {
     for (const pid of prompt.assignedPlayerIds) {
       if (!playerPromptMap[pid]) playerPromptMap[pid] = [];
-      playerPromptMap[pid].push({ promptId: prompt.promptId, promptText: prompt.promptText });
+      playerPromptMap[pid].push({ promptId: prompt.promptId, promptText: prompt.promptText, promptImage: prompt.promptImage ?? null });
     }
   }
   for (const [pid, prompts] of Object.entries(playerPromptMap)) {
@@ -133,6 +134,7 @@ function emitCurrentVote(io, room) {
   io.to(room.roomCode).emit('voting_start', {
     promptId: prompt.promptId,
     promptText: prompt.promptText,
+    promptImage: prompt.promptImage ?? null,
     assignedPlayerIds: prompt.assignedPlayerIds,
     answers: shuffledAnswers.map(a => ({ playerId: a.playerId, text: a.text })),
     promptIndex: room.currentVoteIndex,

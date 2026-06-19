@@ -60,7 +60,7 @@ export default function ScoreboardScreen({ players, round, isFinal, isEndless, i
           </div>
         ) : (
           <div className="text-center font-body font-semibold text-gray-400 text-base py-4">
-            Waiting for the host to stop celebrating…
+            Waiting for the Game Daddy to stop celebrating…
           </div>
         )}
       </div>

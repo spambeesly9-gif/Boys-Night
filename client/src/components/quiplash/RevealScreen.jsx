@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 
-export default function RevealScreen({ promptText, answers, isQuiplash, promptIndex, totalPrompts, myId, scoreDelta }) {
+export default function RevealScreen({ promptText, promptImage, answers, isQuiplash, promptIndex, totalPrompts, myId, scoreDelta }) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setShow(true), 300);
     return () => clearTimeout(t);
   }, []);
+
+  const maxVotes = Math.max(...answers.map(a => a.voteCount));
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
@@ -26,17 +28,26 @@ export default function RevealScreen({ promptText, answers, isQuiplash, promptIn
         </div>
       )}
 
-      <div className="bg-cream border-b-2 border-brand-red/10 px-6 py-6">
-        <div className="max-w-2xl mx-auto text-center">
-          <p className="font-display text-2xl font-bold italic text-gray-900 leading-snug">{promptText}</p>
+      {promptImage ? (
+        <div className="bg-gray-950">
+          <div className="max-w-2xl mx-auto">
+            <img src={promptImage} alt="Comic panel" className="w-full block" />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="bg-cream border-b-2 border-brand-red/10 px-6 py-6">
+          <div className="max-w-2xl mx-auto text-center">
+            <p className="font-display text-2xl font-bold italic text-gray-900 leading-snug">{promptText}</p>
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 px-4 py-8 overflow-y-auto">
         <div className="max-w-2xl mx-auto space-y-4">
           {answers.map((answer, i) => {
-            const isWinner = answer.voteCount === Math.max(...answers.map(a => a.voteCount)) && answer.voteCount > 0;
+            const isWinner = answer.voteCount === maxVotes && answer.voteCount > 0;
             const isMe = answer.playerId === myId;
+            const label = String.fromCharCode(65 + i); // A, B, C...
 
             return (
               <div
@@ -50,6 +61,9 @@ export default function RevealScreen({ promptText, answers, isQuiplash, promptIn
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
+                    {promptImage && (
+                      <span className="font-display font-black italic text-gray-300 text-4xl leading-none mr-3 float-left">{label}</span>
+                    )}
                     <p className="font-body font-semibold text-gray-800 text-lg leading-snug mb-3">{answer.text}</p>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-body font-bold ${isMe ? 'bg-brand-red/10 text-brand-red' : 'bg-cream text-gray-600 border border-gray-200'}`}>

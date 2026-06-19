@@ -41,7 +41,7 @@ export default function InGameMenu({ isHost, onEndGame }) {
             </div>
 
             <p className="text-center text-xs font-body text-gray-400 mt-4">
-              {isHost ? "You're the host. Act like it." : "Only the host can end the game."}
+              {isHost ? "You're the Game Daddy. Act like it." : "Only the Game Daddy can end the game."}
             </p>
           </div>
         </div>
