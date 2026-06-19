@@ -64,9 +64,14 @@ export default function Hub() {
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <header className="pt-16 pb-8 text-center px-4">
-        <h1 className="font-display text-7xl md:text-8xl font-bold italic text-brand-red leading-none tracking-tight min-h-[1.2em]">
-          {text}
-          {!done && <span className="animate-pulse">|</span>}
+        <h1 className="font-display text-7xl md:text-8xl font-bold italic text-brand-red leading-none tracking-tight min-h-[1.2em] inline-flex items-center gap-4">
+          <span>
+            {text}
+            {!done && <span className="animate-pulse">|</span>}
+          </span>
+          {done && (
+            <img src="/favicon.svg" alt="" className="h-[0.85em] w-auto inline-block" />
+          )}
         </h1>
         <p className="font-body font-bold text-gray-500 text-base mt-4">
           The few hours where you actually feel something.
