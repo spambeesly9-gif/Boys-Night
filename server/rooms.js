@@ -3,6 +3,10 @@ const { assignRound, fillMissingAnswers, tallyReveal, generateRoomCode } = requi
 const REVEAL_PAUSE = 5000;
 const rooms = {};
 
+function generateToken() {
+  return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+}
+
 function createRoom(hostId, hostName) {
   let code;
   do { code = generateRoomCode(); } while (rooms[code]);
@@ -10,7 +14,7 @@ function createRoom(hostId, hostName) {
   rooms[code] = {
     roomCode: code,
     hostId,
-    players: [{ id: hostId, name: hostName, score: 0, isConnected: true, isHost: true }],
+    players: [{ id: hostId, name: hostName, score: 0, isConnected: true, isHost: true, reconnectToken: generateToken() }],
     state: 'lobby',
     round: 0,
     totalRounds: 4,
@@ -35,7 +39,55 @@ function removeRoom(code) {
 
 function addPlayer(room, id, name) {
   if (room.players.find(p => p.id === id)) return;
-  room.players.push({ id, name, score: 0, isConnected: true, isHost: false });
+  room.players.push({ id, name, score: 0, isConnected: true, isHost: false, reconnectToken: generateToken() });
+}
+
+function reconnectPlayer(room, token, newSocketId) {
+  const player = room.players.find(p => p.reconnectToken === token);
+  if (!player) return null;
+
+  const oldId = player.id;
+
+  // Update host reference
+  if (room.hostId === oldId) room.hostId = newSocketId;
+
+  // Update player ID and mark connected
+  player.id = newSocketId;
+  player.isConnected = true;
+
+  // Swap old socket ID → new in all round prompt data
+  for (const prompt of (room.roundPrompts || [])) {
+    const idx = prompt.assignedPlayerIds.indexOf(oldId);
+    if (idx !== -1) prompt.assignedPlayerIds[idx] = newSocketId;
+    const answer = prompt.answers.find(a => a.playerId === oldId);
+    if (answer) answer.playerId = newSocketId;
+    for (const vote of prompt.votes) {
+      if (vote.voterId === oldId) vote.voterId = newSocketId;
+      if (vote.forPlayerId === oldId) vote.forPlayerId = newSocketId;
+    }
+  }
+
+  return player;
+}
+
+function syncReconnectedPlayer(io, room, playerId) {
+  if (room.state === 'answering') {
+    io.to(playerId).emit('answer_phase_start', { round: room.round, duration: room.answerTime });
+    const myPrompts = room.roundPrompts
+      .filter(p => p.assignedPlayerIds.includes(playerId) && !p.answers.find(a => a.playerId === playerId))
+      .map(p => ({ promptId: p.promptId, promptText: p.promptText, promptImage: p.promptImage ?? null }));
+    io.to(playerId).emit('your_prompts', myPrompts);
+    const answerStatus = {};
+    for (const p of room.roundPrompts) {
+      for (const pid of p.assignedPlayerIds) {
+        if (!answerStatus[pid]) answerStatus[pid] = true;
+        if (!p.answers.find(a => a.playerId === pid)) answerStatus[pid] = false;
+      }
+    }
+    io.to(playerId).emit('answer_status', answerStatus);
+  } else {
+    syncNewPlayer(io, room, playerId);
+  }
 }
 
 function markDisconnected(room, id) {
@@ -319,6 +371,8 @@ function forceEndGame(io, room, requesterId) {
 
 module.exports = {
   createRoom, getRoom, removeRoom, addPlayer,
-  markDisconnected, handleDisconnect, syncNewPlayer, publicState, startGame,
+  markDisconnected, handleDisconnect, syncNewPlayer,
+  reconnectPlayer, syncReconnectedPlayer,
+  publicState, startGame,
   submitAnswer, castVote, nextRound, forceEndGame,
 };

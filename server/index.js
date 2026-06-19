@@ -4,12 +4,13 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const {
   createRoom, getRoom, removeRoom, addPlayer,
-  handleDisconnect, syncNewPlayer, publicState, startGame,
+  handleDisconnect, syncNewPlayer, reconnectPlayer, syncReconnectedPlayer,
+  publicState, startGame,
   submitAnswer, castVote, nextRound, forceEndGame,
 } = require('./rooms');
 const {
   createHPRoom, getHPRoom, removeHPRoom, addHPPlayer,
-  handleHPDisconnect, hpPublicState, startHPGame,
+  handleHPDisconnect, reconnectHPPlayer, hpPublicState, startHPGame,
   czarSubmit, submitHPAnswer, startHPVoting,
   castHPVote, nextHPRound, forceEndHPGame,
 } = require('./hotpants/gameEngine');
@@ -40,7 +41,8 @@ io.on('connection', (socket) => {
     const room = createRoom(socket.id, name);
     socketRoom[socket.id] = room.roomCode;
     socket.join(room.roomCode);
-    socket.emit('room_joined', { roomCode: room.roomCode, playerId: socket.id, isHost: true });
+    const hostToken = room.players[0].reconnectToken;
+    socket.emit('room_joined', { roomCode: room.roomCode, playerId: socket.id, isHost: true, reconnectToken: hostToken });
     io.to(room.roomCode).emit('game_state', publicState(room));
   });
 
@@ -56,7 +58,8 @@ io.on('connection', (socket) => {
     addPlayer(room, socket.id, name);
     socketRoom[socket.id] = code;
     socket.join(code);
-    socket.emit('room_joined', { roomCode: code, playerId: socket.id, isHost: false });
+    const playerToken = room.players.find(p => p.id === socket.id).reconnectToken;
+    socket.emit('room_joined', { roomCode: code, playerId: socket.id, isHost: false, reconnectToken: playerToken });
     io.to(code).emit('game_state', publicState(room));
     if (midGame) syncNewPlayer(io, room, socket.id);
   });
@@ -103,7 +106,8 @@ io.on('connection', (socket) => {
     const room = createHPRoom(socket.id, name);
     socketHPRoom[socket.id] = room.roomCode;
     socket.join(room.roomCode);
-    socket.emit('hp_room_joined', { roomCode: room.roomCode, playerId: socket.id, isHost: true });
+    const hpHostToken = room.players[0].reconnectToken;
+    socket.emit('hp_room_joined', { roomCode: room.roomCode, playerId: socket.id, isHost: true, reconnectToken: hpHostToken });
     io.to(room.roomCode).emit('hp_game_state', hpPublicState(room));
   });
 
@@ -118,7 +122,8 @@ io.on('connection', (socket) => {
     addHPPlayer(room, socket.id, name);
     socketHPRoom[socket.id] = code;
     socket.join(code);
-    socket.emit('hp_room_joined', { roomCode: code, playerId: socket.id, isHost: false });
+    const hpPlayerToken = room.players.find(p => p.id === socket.id).reconnectToken;
+    socket.emit('hp_room_joined', { roomCode: code, playerId: socket.id, isHost: false, reconnectToken: hpPlayerToken });
     io.to(code).emit('hp_game_state', hpPublicState(room));
   });
 
@@ -173,6 +178,35 @@ io.on('connection', (socket) => {
     const room = getHPRoom(roomCode);
     if (!room) return;
     forceEndHPGame(io, room, socket.id);
+  });
+
+  // ─── Reconnect ──────────────────────────────────────────────────────────────
+
+  socket.on('reconnect_room', ({ roomCode, reconnectToken }) => {
+    const code = String(roomCode || '').toUpperCase().trim();
+    const room = getRoom(code);
+    if (!room || room.state === 'gameover') { socket.emit('reconnect_failed'); return; }
+    const player = reconnectPlayer(room, reconnectToken, socket.id);
+    if (!player) { socket.emit('reconnect_failed'); return; }
+
+    socketRoom[socket.id] = code;
+    socket.join(code);
+    socket.emit('room_joined', { roomCode: code, playerId: socket.id, isHost: player.isHost, reconnectToken: player.reconnectToken });
+    io.to(code).emit('game_state', publicState(room));
+    syncReconnectedPlayer(io, room, socket.id);
+  });
+
+  socket.on('hp_reconnect_room', ({ roomCode, reconnectToken }) => {
+    const code = String(roomCode || '').toUpperCase().trim();
+    const room = getHPRoom(code);
+    if (!room || room.state === 'gameover') { socket.emit('hp_reconnect_failed'); return; }
+    const player = reconnectHPPlayer(room, reconnectToken, socket.id);
+    if (!player) { socket.emit('hp_reconnect_failed'); return; }
+
+    socketHPRoom[socket.id] = code;
+    socket.join(code);
+    socket.emit('hp_room_joined', { roomCode: code, playerId: socket.id, isHost: room.hostId === socket.id, reconnectToken: player.reconnectToken });
+    io.to(code).emit('hp_game_state', hpPublicState(room));
   });
 
   // ─── Disconnect ─────────────────────────────────────────────────────────────

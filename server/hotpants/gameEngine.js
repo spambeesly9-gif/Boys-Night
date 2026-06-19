@@ -1,5 +1,9 @@
 const { generateRoomCode } = require('../quiplash/gameEngine');
 
+function generateToken() {
+  return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+}
+
 const hpRooms = new Map();
 
 // ─── Room management ────────────────────────────────────────────────────────
@@ -11,7 +15,7 @@ function createHPRoom(hostId, hostName) {
   const room = {
     roomCode: code,
     hostId,
-    players: [{ id: hostId, name: hostName, score: 0, isConnected: true }],
+    players: [{ id: hostId, name: hostName, score: 0, isConnected: true, reconnectToken: generateToken() }],
     state: 'lobby',
     config: { rounds: 3 },
     round: 0,
@@ -37,7 +41,34 @@ function removeHPRoom(code) {
 
 function addHPPlayer(room, id, name) {
   if (room.players.find(p => p.id === id)) return;
-  room.players.push({ id, name, score: 0, isConnected: true });
+  room.players.push({ id, name, score: 0, isConnected: true, reconnectToken: generateToken() });
+}
+
+function reconnectHPPlayer(room, token, newSocketId) {
+  const player = room.players.find(p => p.reconnectToken === token);
+  if (!player) return null;
+
+  const oldId = player.id;
+  if (room.hostId === oldId) room.hostId = newSocketId;
+  player.id = newSocketId;
+  player.isConnected = true;
+
+  // Update czar / imposter references
+  if (room.currentRound) {
+    if (room.currentRound.czarId === oldId) room.currentRound.czarId = newSocketId;
+    if (room.currentRound.imposterId === oldId) room.currentRound.imposterId = newSocketId;
+    // answers keyed by id
+    if (room.currentRound.answers[oldId] !== undefined) {
+      room.currentRound.answers[newSocketId] = room.currentRound.answers[oldId];
+      delete room.currentRound.answers[oldId];
+    }
+    if (room.currentRound.votes[oldId] !== undefined) {
+      room.currentRound.votes[newSocketId] = room.currentRound.votes[oldId];
+      delete room.currentRound.votes[oldId];
+    }
+  }
+
+  return player;
 }
 
 function markHPDisconnected(room, id) {
@@ -396,6 +427,7 @@ module.exports = {
   addHPPlayer,
   markHPDisconnected,
   handleHPDisconnect,
+  reconnectHPPlayer,
   hpPublicState,
   startHPGame,
   czarSubmit,

@@ -34,7 +34,8 @@ export default function HotPantsPage() {
   useEffect(() => {
     socket.connect();
 
-    socket.on('hp_room_joined', ({ roomCode: code, playerId, isHost: host }) => {
+    socket.on('hp_room_joined', ({ roomCode: code, playerId, isHost: host, reconnectToken }) => {
+      if (reconnectToken) sessionStorage.setItem('hp_session', JSON.stringify({ roomCode: code, reconnectToken }));
       setRoomCode(code);
       roomCodeRef.current = code;
       setMyId(playerId);
@@ -43,7 +44,12 @@ export default function HotPantsPage() {
       setError('');
     });
 
-    socket.on('hp_join_error', (msg) => setError(msg));
+    socket.on('hp_reconnect_failed', () => {
+      sessionStorage.removeItem('hp_session');
+      setScreen('join');
+    });
+
+    socket.on('hp_join_error', (msg) => { setError(msg); setScreen('join'); });
     socket.on('hp_game_state', (state) => setGameState(state));
 
     socket.on('hp_czar_setup_start', (data) => {
@@ -94,8 +100,18 @@ export default function HotPantsPage() {
       setResultData(null);
     });
 
+    // Auto-reconnect if we have a saved session
+    const saved = sessionStorage.getItem('hp_session');
+    if (saved) {
+      try {
+        const { roomCode: savedCode, reconnectToken } = JSON.parse(saved);
+        socket.emit('hp_reconnect_room', { roomCode: savedCode, reconnectToken });
+      } catch { sessionStorage.removeItem('hp_session'); }
+    }
+
     return () => {
       socket.off('hp_room_joined');
+      socket.off('hp_reconnect_failed');
       socket.off('hp_join_error');
       socket.off('hp_game_state');
       socket.off('hp_czar_setup_start');

@@ -32,7 +32,8 @@ export default function QuiplashPage() {
   useEffect(() => {
     socket.connect();
 
-    socket.on('room_joined', ({ roomCode: code, playerId, isHost: host }) => {
+    socket.on('room_joined', ({ roomCode: code, playerId, isHost: host, reconnectToken }) => {
+      if (reconnectToken) sessionStorage.setItem('ql_session', JSON.stringify({ roomCode: code, reconnectToken }));
       setRoomCode(code);
       roomCodeRef.current = code;
       setMyId(playerId);
@@ -42,7 +43,12 @@ export default function QuiplashPage() {
       startLobbyMusic();
     });
 
-    socket.on('join_error', (msg) => setError(msg));
+    socket.on('reconnect_failed', () => {
+      sessionStorage.removeItem('ql_session');
+      setScreen('join');
+    });
+
+    socket.on('join_error', (msg) => { setError(msg); setScreen('join'); });
     socket.on('game_state', (state) => setGameState(state));
 
     socket.on('answer_phase_start', (data) => {
@@ -86,8 +92,17 @@ export default function QuiplashPage() {
 
     socket.on('game_over', (data) => setWinnerData(data));
 
+    // Auto-reconnect if we have a saved session
+    const saved = sessionStorage.getItem('ql_session');
+    if (saved) {
+      try {
+        const { roomCode: savedCode, reconnectToken } = JSON.parse(saved);
+        socket.emit('reconnect_room', { roomCode: savedCode, reconnectToken });
+      } catch { sessionStorage.removeItem('ql_session'); }
+    }
+
     return () => {
-      socket.off('room_joined'); socket.off('join_error'); socket.off('game_state');
+      socket.off('room_joined'); socket.off('reconnect_failed'); socket.off('join_error'); socket.off('game_state');
       socket.off('answer_phase_start'); socket.off('your_prompts'); socket.off('answer_status');
       socket.off('voting_start'); socket.off('vote_tally'); socket.off('reveal');
       socket.off('score_delta'); socket.off('scoreboard'); socket.off('game_over');
