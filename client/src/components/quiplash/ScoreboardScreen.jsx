@@ -1,9 +1,9 @@
 import { playTap } from '../../utils/sounds';
 const RANK_COLORS = ['text-amber-600', 'text-gray-400', 'text-orange-500'];
 
-export default function ScoreboardScreen({ players, round, isFinal, isHost, onNext, myId }) {
+export default function ScoreboardScreen({ players, round, isFinal, isEndless, isHost, onNext, onEnd, myId }) {
   const sorted = [...players].sort((a, b) => b.score - a.score);
-  const roundLabel = round === 3 ? 'Final Round' : `Round ${round}`;
+  const roundLabel = `Round ${round}`;
   const nextLabel = isFinal ? 'See who won →' : `Start Round ${round + 1} →`;
 
   const ROASTS = [
@@ -42,12 +42,22 @@ export default function ScoreboardScreen({ players, round, isFinal, isHost, onNe
         </div>
 
         {isHost ? (
-          <button
-            onClick={() => { playTap(); onNext(); }}
-            className="w-full bg-brand-red text-cream font-display font-black italic text-xl rounded-xl py-4 transition-all hover:bg-red-900 active:scale-[0.98]"
-          >
-            {nextLabel}
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => { playTap(); onNext(); }}
+              className="flex-1 bg-brand-red text-cream font-display font-black italic text-xl rounded-xl py-4 transition-all hover:bg-red-900 active:scale-[0.98]"
+            >
+              {nextLabel}
+            </button>
+            {(isEndless || !isFinal) && onEnd && (
+              <button
+                onClick={() => { playTap(); onEnd(); }}
+                className="bg-cream-dark border-2 border-brand-red/20 text-gray-600 font-body font-bold rounded-xl px-5 py-4 hover:border-brand-red transition-all text-sm"
+              >
+                End Game
+              </button>
+            )}
+          </div>
         ) : (
           <div className="text-center font-body font-semibold text-gray-400 text-base py-4">
             Waiting for the host to stop celebrating…

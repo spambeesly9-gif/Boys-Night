@@ -1,4 +1,4 @@
-const allPrompts = require('./prompts.json');
+const allPrompts = require('./prompts/round1.json');
 
 const SAFETY_QUIPS = [
   'I plead the fifth.',
@@ -71,9 +71,18 @@ function buildPromptPairs(playerIds) {
 }
 
 function assignRound(playerIds, usedPromptIds, isRound3 = false) {
-  const available = allPrompts
+  const pairs = isRound3 ? null : buildPromptPairs(playerIds);
+  const needed = isRound3 ? 3 : (pairs?.length ?? 1);
+
+  let available = allPrompts
     .map((text, idx) => ({ id: String(idx), text }))
     .filter(p => !usedPromptIds.has(p.id));
+
+  // Cycle the pool when we run low
+  if (available.length < needed) {
+    usedPromptIds.clear();
+    available = allPrompts.map((text, idx) => ({ id: String(idx), text }));
+  }
 
   const shuffled = shuffle(available);
 
@@ -89,7 +98,6 @@ function assignRound(playerIds, usedPromptIds, isRound3 = false) {
     }));
   }
 
-  const pairs = buildPromptPairs(playerIds);
   const selected = shuffled.slice(0, pairs.length);
   selected.forEach(p => usedPromptIds.add(p.id));
 

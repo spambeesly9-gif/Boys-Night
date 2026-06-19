@@ -138,7 +138,7 @@ export default function QuiplashPage() {
 
   const renderPhase = () => {
     if (winnerData) return <WinnerScreen players={winnerData.players} myId={myId} />;
-    if (scoreboardData) return <ScoreboardScreen {...scoreboardData} isHost={isHost} onNext={nextRound} myId={myId} />;
+    if (scoreboardData) return <ScoreboardScreen {...scoreboardData} isHost={isHost} onNext={nextRound} onEnd={endGame} myId={myId} />;
     if (revealData) return <RevealScreen {...revealData} myId={myId} scoreDelta={scoreDelta} players={gameState?.players ?? []} />;
     if (votingData) return <VotingPhase {...votingData} myId={myId} voteTally={voteTally} onVote={castVote} players={gameState?.players ?? []} />;
     if (phase === 'answering' || answerPhaseData) {

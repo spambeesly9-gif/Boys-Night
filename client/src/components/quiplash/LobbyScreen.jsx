@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { playTap } from '../../utils/sounds';
 
-const ROUND_OPTIONS = [1, 2, 3];
+const ROUND_OPTIONS = [1, 2, 3, 5, 'Endless'];
 const ANSWER_TIME_OPTIONS = [30, 60, 90];
 const VOTE_TIME_OPTIONS = [15, 30, 45];
 

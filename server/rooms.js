@@ -60,7 +60,8 @@ function publicState(room) {
 }
 
 function startGame(io, room, config = {}) {
-  room.totalRounds = config.rounds ?? 3;
+  const raw = config.rounds ?? 3;
+  room.totalRounds = (raw === 'Endless' || raw === 'endless') ? Infinity : (Number(raw) || 3);
   room.answerTime  = config.answerTime ?? 90;
   room.voteTime    = config.voteTime ?? 30;
   room.round = 1;
@@ -197,10 +198,12 @@ function advanceAfterReveal(io, room) {
     emitCurrentVote(io, room);
   } else {
     room.state = 'scoreboard';
+    const isEndless = room.totalRounds === Infinity;
     io.to(room.roomCode).emit('scoreboard', {
       players: publicState(room).players,
       round: room.round,
-      isFinal: room.round === room.totalRounds,
+      isFinal: !isEndless && room.round === room.totalRounds,
+      isEndless,
     });
   }
 }
@@ -208,7 +211,7 @@ function advanceAfterReveal(io, room) {
 function nextRound(io, room, requesterId) {
   if (requesterId !== room.hostId) return;
   if (room.state !== 'scoreboard') return;
-  if (room.round >= room.totalRounds) {
+  if (room.totalRounds !== Infinity && room.round >= room.totalRounds) {
     endGame(io, room);
   } else {
     room.round++;
