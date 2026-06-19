@@ -13,7 +13,7 @@ function createRoom(hostId, hostName) {
     players: [{ id: hostId, name: hostName, score: 0, isConnected: true, isHost: true }],
     state: 'lobby',
     round: 0,
-    totalRounds: 3,
+    totalRounds: 4,
     answerTime: 90,
     voteTime: 30,
     roundPrompts: [],
@@ -60,8 +60,8 @@ function publicState(room) {
 }
 
 function startGame(io, room, config = {}) {
-  const raw = config.rounds ?? 3;
-  room.totalRounds = (raw === 'Endless' || raw === 'endless') ? Infinity : (Number(raw) || 3);
+  const raw = config.rounds ?? 4;
+  room.totalRounds = (raw === 'Endless' || raw === 'endless') ? Infinity : (Number(raw) || 4);
   room.answerTime  = config.answerTime ?? 90;
   room.voteTime    = config.voteTime ?? 30;
   room.round = 1;
@@ -130,6 +130,9 @@ function emitCurrentVote(io, room) {
   const prompt = room.roundPrompts[room.currentVoteIndex];
   if (!prompt) return;
 
+  const connectedIds = room.players.filter(p => p.isConnected).map(p => p.id);
+  const isAllPlay = connectedIds.every(id => prompt.assignedPlayerIds.includes(id));
+
   const shuffledAnswers = [...prompt.answers].sort(() => Math.random() - 0.5);
   io.to(room.roomCode).emit('voting_start', {
     promptId: prompt.promptId,
@@ -141,6 +144,7 @@ function emitCurrentVote(io, room) {
     totalPrompts: room.roundPrompts.length,
     duration: room.voteTime,
     round: room.round,
+    isAllPlay,
   });
 
   clearTimeout(room.timers.vote);
@@ -151,7 +155,16 @@ function castVote(io, room, voterId, promptId, forPlayerId) {
   if (room.state !== 'voting') return;
   const prompt = room.roundPrompts[room.currentVoteIndex];
   if (!prompt || prompt.promptId !== promptId) return;
-  if (prompt.assignedPlayerIds.includes(voterId)) return;
+
+  const connectedIds = room.players.filter(p => p.isConnected).map(p => p.id);
+  const isAllPlay = connectedIds.every(id => prompt.assignedPlayerIds.includes(id));
+
+  if (isAllPlay) {
+    if (voterId === forPlayerId) return; // can't vote for yourself
+  } else {
+    if (prompt.assignedPlayerIds.includes(voterId)) return; // assigned players don't vote in normal rounds
+  }
+
   if (prompt.votes.find(v => v.voterId === voterId)) return;
   if (!prompt.answers.find(a => a.playerId === forPlayerId)) return;
 
@@ -163,9 +176,11 @@ function castVote(io, room, voterId, promptId, forPlayerId) {
   }
   io.to(room.roomCode).emit('vote_tally', { promptId, tally });
 
-  const eligibleVoters = room.players.filter(
-    p => p.isConnected && !prompt.assignedPlayerIds.includes(p.id)
-  );
+  const eligibleVoters = room.players.filter(p => {
+    if (!p.isConnected) return false;
+    if (isAllPlay) return true;
+    return !prompt.assignedPlayerIds.includes(p.id);
+  });
   if (eligibleVoters.length > 0 && eligibleVoters.every(p => prompt.votes.find(v => v.voterId === p.id))) {
     clearTimeout(room.timers.vote);
     revealCurrentPrompt(io, room);

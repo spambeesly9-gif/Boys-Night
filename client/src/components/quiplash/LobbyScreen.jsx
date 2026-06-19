@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { playTap } from '../../utils/sounds';
 
-const ROUND_OPTIONS = [1, 2, 3, 5, 'Endless'];
+const ROUND_OPTIONS = [1, 2, 3, 4, 5, 'Endless'];
 const ANSWER_TIME_OPTIONS = [30, 60, 90];
 const VOTE_TIME_OPTIONS = [15, 30, 45];
 
@@ -9,7 +9,7 @@ export default function LobbyScreen({ roomCode, players, isHost, onStart, myId }
   const connected = players.filter(p => p.isConnected);
   const canStart = isHost && connected.length >= 3;
 
-  const [rounds, setRounds] = useState(3);
+  const [rounds, setRounds] = useState(4);
   const [answerTime, setAnswerTime] = useState(90);
   const [voteTime, setVoteTime] = useState(30);
   const [showConfig, setShowConfig] = useState(false);

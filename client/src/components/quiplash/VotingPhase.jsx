@@ -2,15 +2,16 @@ import { useState } from 'react';
 import CountdownTimer from './CountdownTimer';
 import { playTap } from '../../utils/sounds';
 
-export default function VotingPhase({ promptId, promptText, promptImage, assignedPlayerIds, answers, promptIndex, totalPrompts, duration, round, myId, voteTally, onVote }) {
+export default function VotingPhase({ promptId, promptText, promptImage, assignedPlayerIds, answers, promptIndex, totalPrompts, duration, round, myId, voteTally, onVote, isAllPlay }) {
   const [voted, setVoted] = useState(null);
 
-  const canVote = !assignedPlayerIds.includes(myId);
+  const canVote = isAllPlay || !assignedPlayerIds.includes(myId);
   const totalVotes = Object.values(voteTally).reduce((s, n) => s + n, 0);
-  const roundLabel = round === 3 ? 'Final Round' : `Round ${round}`;
+  const roundLabel = `Round ${round}`;
 
   const handleVote = (forPlayerId) => {
     if (!canVote || voted) return;
+    if (isAllPlay && forPlayerId === myId) return;
     playTap();
     setVoted(forPlayerId);
     onVote(promptId, forPlayerId);
@@ -51,23 +52,26 @@ export default function VotingPhase({ promptId, promptText, promptImage, assigne
       <div className="flex-1 flex flex-col justify-center px-4 py-6">
         <div className="max-w-2xl mx-auto w-full space-y-4">
           {answers.map((answer, i) => {
-            const label = i === 0 ? 'A' : 'B';
+            const label = String.fromCharCode(65 + i);
             const voteCount = voteTally[answer.playerId] ?? 0;
             const isMyVote = voted === answer.playerId;
+            const isMyAnswer = isAllPlay && answer.playerId === myId;
             const votePct = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
 
             return (
               <button
                 key={answer.playerId}
                 onClick={() => handleVote(answer.playerId)}
-                disabled={!canVote || !!voted}
+                disabled={!canVote || !!voted || isMyAnswer}
                 className={`
                   w-full text-left rounded-2xl border-2 p-6 transition-all font-body
                   ${isMyVote
                     ? 'border-brand-red bg-brand-red/5 shadow-md scale-[1.01]'
-                    : canVote && !voted
-                      ? 'border-brand-red/30 bg-cream-dark hover:border-brand-red hover:shadow-md hover:-translate-y-0.5 cursor-pointer'
-                      : 'border-brand-red/20 bg-cream-dark cursor-default'}
+                    : isMyAnswer
+                      ? 'border-gray-200 bg-cream-dark opacity-50 cursor-not-allowed'
+                      : canVote && !voted
+                        ? 'border-brand-red/30 bg-cream-dark hover:border-brand-red hover:shadow-md hover:-translate-y-0.5 cursor-pointer'
+                        : 'border-brand-red/20 bg-cream-dark cursor-default'}
                 `}
               >
                 <div className="flex items-start gap-4">
@@ -97,6 +101,8 @@ export default function VotingPhase({ promptId, promptText, promptImage, assigne
             <p className="font-body font-bold text-gray-400">You wrote one of these. Hands to yourself.</p>
           ) : voted ? (
             <p className="font-body font-bold text-green-700">✓ Voted. Bold choice.</p>
+          ) : isAllPlay ? (
+            <p className="font-body font-bold text-gray-400">Vote for anyone — except yourself.</p>
           ) : (
             <p className="font-body font-bold text-gray-400">Tap the one that made you actually laugh.</p>
           )}
