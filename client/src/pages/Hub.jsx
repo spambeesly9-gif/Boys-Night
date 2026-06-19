@@ -99,11 +99,9 @@ export default function Hub() {
               <img
                 src="/the-boys.png"
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover object-center"
+                className="absolute inset-0 w-full h-full object-cover object-top scale-[1.35] origin-top"
               />
               <div className="absolute inset-0 bg-black/50" />
-              <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-black to-transparent" />
-              <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black to-transparent" />
               <h2 className="font-display text-4xl font-bold text-white relative z-10">
                 Quiplash
               </h2>
