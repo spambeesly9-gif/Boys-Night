@@ -95,13 +95,13 @@ export default function Hub() {
             onClick={() => handleGameClick('quiplash')}
             className="group rounded-3xl border border-gray-200 overflow-hidden text-left transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl active:scale-[0.98] cursor-pointer bg-white"
           >
-            <div className="h-44 bg-gray-950 relative overflow-hidden flex flex-col justify-end px-6 pb-5">
-              <span
-                className="absolute font-display font-black text-white/[0.06] leading-none select-none pointer-events-none"
-                style={{ fontSize: '220px', top: '-30px', left: '-10px', lineHeight: 1 }}
-              >
-                "
-              </span>
+            <div className="h-44 relative overflow-hidden flex flex-col justify-end px-6 pb-5">
+              <img
+                src="/the-boys.png"
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-black/55" />
               <h2 className="font-display text-4xl font-bold text-white relative z-10">
                 Quiplash
               </h2>
