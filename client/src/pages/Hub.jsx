@@ -125,12 +125,13 @@ export default function Hub() {
             onClick={() => handleGameClick('hotpants')}
             className="group rounded-3xl border border-gray-200 overflow-hidden text-left transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl active:scale-[0.98] cursor-pointer bg-white"
           >
-            <div
-              className="h-44 relative overflow-hidden flex flex-col justify-end px-6 pb-5"
-              style={{
-                background: 'repeating-linear-gradient(135deg, #1e1b4b 0px, #1e1b4b 14px, #2e1065 14px, #2e1065 28px)',
-              }}
-            >
+            <div className="h-44 relative overflow-hidden flex flex-col justify-end px-6 pb-5">
+              <img
+                src="/burning-pants.png"
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover object-top scale-[1.35] origin-top"
+              />
+              <div className="absolute inset-0 bg-black/50" />
               <h2
                 className="font-display text-4xl font-bold text-white relative z-10"
                 style={{ letterSpacing: '0.04em' }}
