@@ -359,6 +359,35 @@ function forceEndHPGame(io, room, requesterId) {
   endHPGame(io, room);
 }
 
+function handleHPDisconnect(io, room, playerId) {
+  markHPDisconnected(room, playerId);
+
+  if (room.state === 'answering' && room.currentRound) {
+    // Fill their answer so the round isn't stuck waiting for them
+    if (playerId !== room.currentRound.czarId && room.currentRound.answers[playerId] === undefined) {
+      room.currentRound.answers[playerId] = '(no answer)';
+    }
+    const nonCzar = room.players.filter(p => p.isConnected && p.id !== room.currentRound.czarId);
+    if (nonCzar.length > 0 && nonCzar.every(p => room.currentRound.answers[p.id] !== undefined)) {
+      clearTimeout(room.timers.answer);
+      startReveal(io, room);
+      return;
+    }
+  }
+
+  if (room.state === 'voting') {
+    // Re-check if all remaining connected players voted
+    const eligible = room.players.filter(p => p.isConnected && p.id !== room.currentRound?.czarId);
+    if (eligible.length > 0 && eligible.every(p => room.currentRound.votes[p.id])) {
+      clearTimeout(room.timers.vote);
+      resolveVotes(io, room);
+      return;
+    }
+  }
+
+  io.to(room.roomCode).emit('hp_game_state', hpPublicState(room));
+}
+
 module.exports = {
   hpRooms,
   createHPRoom,
@@ -366,6 +395,7 @@ module.exports = {
   removeHPRoom,
   addHPPlayer,
   markHPDisconnected,
+  handleHPDisconnect,
   hpPublicState,
   startHPGame,
   czarSubmit,

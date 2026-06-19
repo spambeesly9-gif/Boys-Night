@@ -4,12 +4,12 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const {
   createRoom, getRoom, removeRoom, addPlayer,
-  markDisconnected, publicState, startGame,
+  handleDisconnect, syncNewPlayer, publicState, startGame,
   submitAnswer, castVote, nextRound, forceEndGame,
 } = require('./rooms');
 const {
   createHPRoom, getHPRoom, removeHPRoom, addHPPlayer,
-  markHPDisconnected, hpPublicState, startHPGame,
+  handleHPDisconnect, hpPublicState, startHPGame,
   czarSubmit, submitHPAnswer, startHPVoting,
   castHPVote, nextHPRound, forceEndHPGame,
 } = require('./hotpants/gameEngine');
@@ -49,14 +49,16 @@ io.on('connection', (socket) => {
     const name = String(playerName || '').trim().slice(0, 20) || 'Anonymous';
     const room = getRoom(code);
     if (!room) { socket.emit('join_error', 'Room not found.'); return; }
-    if (room.state !== 'lobby') { socket.emit('join_error', 'Game already started.'); return; }
+    if (room.state === 'gameover') { socket.emit('join_error', 'Game is already over.'); return; }
     if (room.players.length >= 8) { socket.emit('join_error', 'Room is full (max 8).'); return; }
 
+    const midGame = room.state !== 'lobby';
     addPlayer(room, socket.id, name);
     socketRoom[socket.id] = code;
     socket.join(code);
     socket.emit('room_joined', { roomCode: code, playerId: socket.id, isHost: false });
     io.to(code).emit('game_state', publicState(room));
+    if (midGame) syncNewPlayer(io, room, socket.id);
   });
 
   socket.on('start_game', ({ roomCode, config }) => {
@@ -110,7 +112,7 @@ io.on('connection', (socket) => {
     const name = String(playerName || '').trim().slice(0, 20) || 'Anonymous';
     const room = getHPRoom(code);
     if (!room) { socket.emit('hp_join_error', 'Room not found.'); return; }
-    if (room.state !== 'lobby') { socket.emit('hp_join_error', 'Game already started.'); return; }
+    if (room.state === 'gameover') { socket.emit('hp_join_error', 'Game is already over.'); return; }
     if (room.players.length >= 8) { socket.emit('hp_join_error', 'Room is full (max 8).'); return; }
 
     addHPPlayer(room, socket.id, name);
@@ -184,11 +186,10 @@ io.on('connection', (socket) => {
     if (code) {
       const room = getRoom(code);
       if (room) {
-        markDisconnected(room, socket.id);
-        if (room.players.every(p => !p.isConnected)) {
+        if (room.players.every(p => !p.isConnected || p.id === socket.id)) {
           removeRoom(code);
         } else {
-          io.to(code).emit('game_state', publicState(room));
+          handleDisconnect(io, room, socket.id);
         }
       }
     }
@@ -199,11 +200,10 @@ io.on('connection', (socket) => {
     if (hpCode) {
       const hpRoom = getHPRoom(hpCode);
       if (hpRoom) {
-        markHPDisconnected(hpRoom, socket.id);
-        if (hpRoom.players.every(p => !p.isConnected)) {
+        if (hpRoom.players.every(p => !p.isConnected || p.id === socket.id)) {
           removeHPRoom(hpCode);
         } else {
-          io.to(hpCode).emit('hp_game_state', hpPublicState(hpRoom));
+          handleHPDisconnect(io, hpRoom, socket.id);
         }
       }
     }

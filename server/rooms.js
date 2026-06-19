@@ -43,6 +43,76 @@ function markDisconnected(room, id) {
   if (p) p.isConnected = false;
 }
 
+function handleDisconnect(io, room, playerId) {
+  markDisconnected(room, playerId);
+
+  if (room.state === 'answering') {
+    // Fill any unanswered prompts for the disconnected player so the round isn't stuck
+    for (const prompt of room.roundPrompts) {
+      if (prompt.assignedPlayerIds.includes(playerId)) fillMissingAnswers(prompt);
+    }
+    const connectedIds = new Set(room.players.filter(p => p.isConnected).map(p => p.id));
+    const allDone = room.roundPrompts.every(p =>
+      p.assignedPlayerIds.filter(pid => connectedIds.has(pid))
+        .every(pid => p.answers.find(a => a.playerId === pid))
+    );
+    if (allDone) { clearTimeout(room.timers.answer); advanceToVoting(io, room); return; }
+  }
+
+  if (room.state === 'voting') {
+    const prompt = room.roundPrompts[room.currentVoteIndex];
+    if (prompt) {
+      const connectedIds = room.players.filter(p => p.isConnected).map(p => p.id);
+      const isAllPlay = connectedIds.every(id => prompt.assignedPlayerIds.includes(id));
+      const eligibleVoters = room.players.filter(p => {
+        if (!p.isConnected) return false;
+        if (isAllPlay) return true;
+        return !prompt.assignedPlayerIds.includes(p.id);
+      });
+      if (eligibleVoters.length > 0 && eligibleVoters.every(p => prompt.votes.find(v => v.voterId === p.id))) {
+        clearTimeout(room.timers.vote); revealCurrentPrompt(io, room); return;
+      }
+    }
+  }
+
+  io.to(room.roomCode).emit('game_state', publicState(room));
+}
+
+function syncNewPlayer(io, room, socketId) {
+  if (room.state === 'answering') {
+    io.to(socketId).emit('answer_phase_start', { round: room.round, duration: room.answerTime });
+    io.to(socketId).emit('your_prompts', []);
+  } else if (room.state === 'voting') {
+    io.to(socketId).emit('answer_phase_start', { round: room.round, duration: room.answerTime });
+    const prompt = room.roundPrompts[room.currentVoteIndex];
+    if (prompt) {
+      const connectedIds = room.players.filter(p => p.isConnected).map(p => p.id);
+      const isAllPlay = connectedIds.every(id => prompt.assignedPlayerIds.includes(id));
+      io.to(socketId).emit('voting_start', {
+        promptId: prompt.promptId,
+        promptText: prompt.promptText,
+        promptImage: prompt.promptImage ?? null,
+        assignedPlayerIds: prompt.assignedPlayerIds,
+        answers: [...prompt.answers].sort(() => Math.random() - 0.5).map(a => ({ playerId: a.playerId, text: a.text })),
+        promptIndex: room.currentVoteIndex,
+        totalPrompts: room.roundPrompts.length,
+        duration: room.voteTime,
+        round: room.round,
+        isAllPlay,
+      });
+    }
+  } else if (room.state === 'scoreboard') {
+    io.to(socketId).emit('answer_phase_start', { round: room.round, duration: room.answerTime });
+    const isEndless = room.totalRounds === Infinity;
+    io.to(socketId).emit('scoreboard', {
+      players: publicState(room).players,
+      round: room.round,
+      isFinal: !isEndless && room.round === room.totalRounds,
+      isEndless,
+    });
+  }
+}
+
 function publicState(room) {
   return {
     roomCode: room.roomCode,
@@ -249,6 +319,6 @@ function forceEndGame(io, room, requesterId) {
 
 module.exports = {
   createRoom, getRoom, removeRoom, addPlayer,
-  markDisconnected, publicState, startGame,
+  markDisconnected, handleDisconnect, syncNewPlayer, publicState, startGame,
   submitAnswer, castVote, nextRound, forceEndGame,
 };
