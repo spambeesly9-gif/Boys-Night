@@ -5,6 +5,11 @@
   "scripts": {
     "server": "cd server && node index.js",
     "client": "cd client && npm run dev",
-    "dev:server": "cd server && node --watch index.js"
+    "dev:server": "cd server && node --watch index.js",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.102.0"
   }
 }
